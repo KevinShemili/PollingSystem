@@ -1,5 +1,7 @@
 package commands
 
+import "gin/api/requests"
+
 type IRegisterUserCommand interface {
-	Register() (string, error)
+	Register(request *requests.RegisterRequest) (bool, error)
 }

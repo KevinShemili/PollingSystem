@@ -23,7 +23,7 @@ func main() {
 		})
 	})
 
-	r.GET("/test", container.AuthenticationController.Register)
+	r.POST("/test", container.AuthenticationController.Register)
 
 	// WebSocket handler
 	// Keep the connection open without reading messages
