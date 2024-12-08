@@ -1,11 +1,9 @@
-// Backend Code:
-
 package main
 
 import (
 	"gin/api/initializers"
-	"gin/infrastructure/database"
 	"gin/infrastructure/websocket"
+	"gin/injection"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +11,9 @@ import (
 
 func main() {
 
-	initializers.LoadEnvVariables()
-	database.ConnectToDB()
+	initializers.LoadEnvironmentVariabes()
+
+	container := injection.BuildContainer()
 
 	r := gin.Default()
 
@@ -23,6 +22,8 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	r.GET("/test", container.AuthenticationController.Register)
 
 	// WebSocket handler
 	// Keep the connection open without reading messages

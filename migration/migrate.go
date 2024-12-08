@@ -1,25 +1,22 @@
 package main
 
 import (
-	"gin/api/initializers"
 	"gin/application/errorsCodes"
 	"gin/domain/entities"
 	"gin/infrastructure/database"
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func main() {
-	initializers.LoadEnvVariables()
 
-	flag := ensureDatabaseExists()
+	loadEnvironmentVariables()
 
-	if !flag { // flag == false
-		log.Fatal(errorsCodes.DATABASE_CONNECTION_ERROR)
-	}
+	ensureDatabaseExists()
 
 	database := database.ConnectToDB()
 	dbContext := database.GetDBContext()
@@ -28,7 +25,16 @@ func main() {
 	log.Println("Migration Complete.")
 }
 
-func ensureDatabaseExists() bool {
+func loadEnvironmentVariables() {
+	err := godotenv.Load("../.env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
+
+func ensureDatabaseExists() {
+
 	serverName := os.Getenv("SERVER_STRING")
 	databaseName := os.Getenv("DATABASE_NAME")
 
@@ -42,10 +48,7 @@ func ensureDatabaseExists() bool {
 
 	if result == 0 {
 		createDatabase(server, databaseName)
-		return true
 	}
-
-	return false
 }
 
 func createDatabase(server *gorm.DB, databaseName string) {
