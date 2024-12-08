@@ -2,8 +2,8 @@ package main
 
 import (
 	"gin/api/initializers"
+	"gin/api/injection"
 	"gin/infrastructure/websocket"
-	"gin/injection"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
