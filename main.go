@@ -1,14 +1,28 @@
 package main
 
 import (
+	"gin/api/authentication"
 	"gin/api/initializers"
 	"gin/api/injection"
 	"gin/infrastructure/websocket"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	_ "gin/docs" // Must import for Swagger to render
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Your API Title
+// @version 1.0
+// @description Your API description
+// @host localhost:8080
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 
 	initializers.LoadEnvironmentVariabes()
@@ -17,15 +31,13 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.POST("/test", container.AuthenticationController.Register)
+	authentication.AuthenticationRoutes(r, container.AuthenticationController)
 
-	// WebSocket handler
+	// -------------------------------------------------------------------------------------
+
+	// WEBSOCKETS
 	// Keep the connection open without reading messages
 	r.GET("/ws", func(c *gin.Context) {
 		conn, err := websocket.UpgradeConnection(c.Writer, c.Request)

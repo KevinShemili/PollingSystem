@@ -1,0 +1,57 @@
+basePath: /
+definitions:
+  requests.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Your API description
+  title: Your API Title
+  version: "1.0"
+paths:
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint registers a new user with the provided details.
+      parameters:
+      - description: User Registration Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'success: true'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: binding error message'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: internal server error'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Register a new user
+      tags:
+      - Authentication
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

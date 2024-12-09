@@ -1,4 +1,4 @@
-package controllers
+package authentication
 
 import (
 	"gin/api/requests"
@@ -16,6 +16,19 @@ func NewAuthenticationController(registerUserCommand commands.IRegisterUserComma
 	return &AuthenticationController{registerUserCommand: registerUserCommand}
 }
 
+// Register handles user registration.
+//
+// @Summary Register a new user
+// @Description This endpoint registers a new user with the provided details.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body requests.RegisterRequest true "User Registration Request"
+// @Success 200 {object} map[string]interface{} "success: true"
+// @Failure 400 {object} map[string]interface{} "error: binding error message"
+// @Failure 500 {object} map[string]interface{} "error: internal server error"
+// @Router /register [post]
+// @Security BearerAuth
 func (uc *AuthenticationController) Register(c *gin.Context) {
 
 	var request requests.RegisterRequest
