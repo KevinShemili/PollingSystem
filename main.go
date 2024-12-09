@@ -33,7 +33,7 @@ func main() {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	authentication.AuthenticationRoutes(r, container.AuthenticationController)
+	authentication.AuthenticationRoutes(r, container.AuthenticationController, container.UserRepository)
 
 	// -------------------------------------------------------------------------------------
 

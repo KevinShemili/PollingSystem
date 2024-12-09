@@ -3,11 +3,14 @@ package injection
 import (
 	"gin/api/authentication"
 	"gin/application/repository"
+	"gin/application/repository/contracts"
 	"gin/application/usecase/authentication/commands"
 	"gin/infrastructure/database"
 )
 
 type AppContainer struct {
+	UserRepository contracts.IUserRepository // inject in auth-middleware
+
 	AuthenticationController *authentication.AuthenticationController
 }
 
@@ -20,9 +23,12 @@ func BuildContainer() *AppContainer {
 
 	UserRepository := repository.NewUserRepository(dbContext)
 	RegisterCommand := commands.NewRegisterCommand(UserRepository)
-	AuthenticationController := authentication.NewAuthenticationController(RegisterCommand)
+	LoginCommand := commands.NewLoginCommand(UserRepository)
+	AuthenticationController := authentication.NewAuthenticationController(RegisterCommand, LoginCommand)
 
 	return &AppContainer{
+		UserRepository: UserRepository,
+
 		AuthenticationController: AuthenticationController,
 	}
 }

@@ -10,4 +10,5 @@ type User struct {
 	IsEmailConfirmed bool
 	PasswordHash     string
 	Age              int
+	IsDeleted        bool
 }

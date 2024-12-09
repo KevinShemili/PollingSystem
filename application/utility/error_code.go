@@ -43,7 +43,17 @@ var (
 	)
 
 	IncorrectEmail = NewErrorCode(
-		"Incorrect email.",
+		"Incorrect email or password.",
 		http.StatusNotFound,
+	)
+
+	InternalServerError = NewErrorCode(
+		"Internal Server Error.",
+		http.StatusInternalServerError,
+	)
+
+	BindFailure = NewErrorCode(
+		"Binding Failure.",
+		http.StatusInternalServerError,
 	)
 )

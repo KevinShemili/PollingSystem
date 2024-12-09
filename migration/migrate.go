@@ -35,8 +35,7 @@ func loadEnvironmentVariables() {
 
 func ensureDatabaseExists() {
 
-	//serverName := os.Getenv("SERVER_STRING")
-	serverName := os.Getenv("BRUHMOMENTUM")
+	serverName := os.Getenv("SERVER_STRING")
 	databaseName := os.Getenv("DATABASE_NAME")
 
 	server, err := gorm.Open(postgres.Open(serverName), &gorm.Config{})

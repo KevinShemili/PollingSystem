@@ -9,13 +9,92 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
-        "/register": {
+        "/auth/login": {
+            "post": {
+                "description": "Authenticate a user with email and password, returning a JWT token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login a user",
+                "parameters": [
+                    {
+                        "description": "Login Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Authentication token and refresh token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Binding failure",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
+                "description": "Ends the user session by invalidating the token (requires JWT).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Log out a user",
+                "responses": {
+                    "200": {
+                        "description": "BRUH MOMENTUM",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
                 "description": "This endpoint registers a new user with the provided details.",
                 "consumes": [
                     "application/json"
@@ -47,17 +126,15 @@
                         }
                     },
                     "400": {
-                        "description": "error: binding error message",
+                        "description": "Binding failure or validation errors",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "error: internal server error",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/utility.ErrorCode"
                         }
                     }
                 }
@@ -65,6 +142,17 @@
         }
     },
     "definitions": {
+        "requests.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "requests.RegisterRequest": {
             "type": "object",
             "properties": {
@@ -73,6 +161,20 @@
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "utility.ErrorCode": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status_code": {
+                    "type": "integer"
                 }
             }
         }

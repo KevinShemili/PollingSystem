@@ -1,11 +1,27 @@
 basePath: /
 definitions:
+  requests.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   requests.RegisterRequest:
     properties:
       email:
         type: string
       password:
         type: string
+    type: object
+  utility.ErrorCode:
+    properties:
+      description:
+        type: string
+      message:
+        type: string
+      status_code:
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -14,7 +30,61 @@ info:
   title: Your API Title
   version: "1.0"
 paths:
-  /register:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user with email and password, returning a JWT token.
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Authentication token and refresh token
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Binding failure
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      summary: Login a user
+      tags:
+      - Authentication
+  /auth/logout:
+    post:
+      description: Ends the user session by invalidating the token (requires JWT).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: BRUH MOMENTUM
+          schema:
+            type: string
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      security:
+      - BearerAuth: []
+      summary: Log out a user
+      tags:
+      - Authentication
+  /auth/register:
     post:
       consumes:
       - application/json
@@ -35,17 +105,13 @@ paths:
             additionalProperties: true
             type: object
         "400":
-          description: 'error: binding error message'
+          description: Binding failure or validation errors
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/utility.ErrorCode'
         "500":
-          description: 'error: internal server error'
+          description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
+            $ref: '#/definitions/utility.ErrorCode'
       summary: Register a new user
       tags:
       - Authentication
