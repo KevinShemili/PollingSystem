@@ -15,12 +15,12 @@ type AppContainer struct {
 func BuildContainer() *AppContainer {
 
 	// Database connection
-	database := database.ConnectToDB()
-	gormInstace := database.GetDBContext()
+	database, _ := database.NewDatabase()
+	dbContext := database.GetDBContext()
 
-	UserRepository := repository.NewUserRepository(gormInstace)
-	RegisterUserCommand := commands.NewRegisterUserCommand(UserRepository)
-	AuthenticationController := authentication.NewAuthenticationController(RegisterUserCommand)
+	UserRepository := repository.NewUserRepository(dbContext)
+	RegisterCommand := commands.NewRegisterCommand(UserRepository)
+	AuthenticationController := authentication.NewAuthenticationController(RegisterCommand)
 
 	return &AppContainer{
 		AuthenticationController: AuthenticationController,

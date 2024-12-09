@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"gin/application/repository/contract"
+	"gin/application/repository/contracts"
 
 	"gorm.io/gorm"
 )
@@ -10,7 +10,7 @@ type Repository[T any] struct {
 	db *gorm.DB
 }
 
-var _ contract.IRepository[any] = &Repository[any]{}
+var _ contracts.IRepository[any] = &Repository[any]{}
 
 func NewRepository[T any](db *gorm.DB) *Repository[T] {
 	return &Repository[T]{db: db}

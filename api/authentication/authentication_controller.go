@@ -2,18 +2,18 @@ package authentication
 
 import (
 	"gin/api/requests"
-	"gin/application/usecase/authentication/commands"
+	"gin/application/usecase/authentication/commands/contracts"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthenticationController struct {
-	registerUserCommand commands.IRegisterUserCommand
+	registerCommand contracts.IRegisterCommand
 }
 
-func NewAuthenticationController(registerUserCommand commands.IRegisterUserCommand) *AuthenticationController {
-	return &AuthenticationController{registerUserCommand: registerUserCommand}
+func NewAuthenticationController(registerCommand contracts.IRegisterCommand) *AuthenticationController {
+	return &AuthenticationController{registerCommand: registerCommand}
 }
 
 // Register handles user registration.
@@ -38,7 +38,7 @@ func (uc *AuthenticationController) Register(c *gin.Context) {
 		return
 	}
 
-	success, err := uc.registerUserCommand.Register(&request)
+	success, err := uc.registerCommand.Register(&request)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

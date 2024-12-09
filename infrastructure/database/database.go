@@ -1,8 +1,7 @@
 package database
 
 import (
-	"gin/application/errorsCodes"
-	"log"
+	"gin/application/utility"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -10,21 +9,22 @@ import (
 )
 
 type Database struct {
-	dbContext *gorm.DB
+	DBContext *gorm.DB
+}
+
+func NewDatabase() (*Database, *utility.ErrorCode) {
+
+	dsn := os.Getenv("CONNECTION_STRING")
+
+	context, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	if err != nil || context == nil {
+		return nil, utility.DatabaseConnectionError.WithDescription(err.Error())
+	}
+
+	return &Database{DBContext: context}, nil
 }
 
 func (database *Database) GetDBContext() *gorm.DB {
-	return database.dbContext
-}
-
-func ConnectToDB() *Database {
-	dsn := os.Getenv("CONNECTION_STRING")
-
-	dbContext, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil || dbContext == nil {
-		log.Fatal(errorsCodes.DATABASE_CONNECTION_ERROR, err)
-	}
-
-	return &Database{dbContext: dbContext}
+	return database.DBContext
 }

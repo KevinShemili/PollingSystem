@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gin/application/errorsCodes"
+	"gin/application/utility"
 	"gin/domain/entities"
 	"gin/infrastructure/database"
 	"log"
@@ -18,7 +18,7 @@ func main() {
 
 	ensureDatabaseExists()
 
-	database := database.ConnectToDB()
+	database, _ := database.NewDatabase()
 	dbContext := database.GetDBContext()
 
 	dbContext.AutoMigrate(&entities.User{})
@@ -35,12 +35,14 @@ func loadEnvironmentVariables() {
 
 func ensureDatabaseExists() {
 
-	serverName := os.Getenv("SERVER_STRING")
+	//serverName := os.Getenv("SERVER_STRING")
+	serverName := os.Getenv("BRUHMOMENTUM")
 	databaseName := os.Getenv("DATABASE_NAME")
 
 	server, err := gorm.Open(postgres.Open(serverName), &gorm.Config{})
+
 	if err != nil {
-		log.Fatal(errorsCodes.DATABASE_CONNECTION_ERROR, err)
+		log.Fatal(*utility.DatabaseConnectionError.WithDescription(err.Error()))
 	}
 
 	var result int64
@@ -56,6 +58,6 @@ func createDatabase(server *gorm.DB, databaseName string) {
 	err := server.Exec("CREATE DATABASE " + databaseName).Error
 
 	if err != nil {
-		log.Fatal(errorsCodes.DATABASE_NOT_CREATED, err)
+		log.Fatal(*utility.DatabaseCreationError.WithDescription(err.Error()))
 	}
 }
