@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"gin/application/repository/contracts"
 
 	"gorm.io/gorm"
@@ -19,15 +20,30 @@ func NewRepository[T any](db *gorm.DB) *Repository[T] {
 func (r *Repository[T]) GetAll() ([]T, error) {
 	var entities []T
 	result := r.db.Where("is_deleted = ?", false).Find(&entities)
-	return entities, result.Error
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
+		return nil, result.Error
+	}
+
+	return entities, nil
 }
 
 func (r *Repository[T]) GetByID(id uint) (*T, error) {
 	var entity T
 	result := r.db.Where("id = ? AND is_deleted = ?", id, false).First(&entity)
+
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
 		return nil, result.Error
 	}
+
 	return &entity, nil
 }
 

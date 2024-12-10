@@ -6,11 +6,7 @@ import (
 	"gin/application/usecase/authentication/results"
 	"gin/application/utility"
 	"gin/domain/entities"
-	"os"
-	"strconv"
-	"time"
 
-	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -44,7 +40,7 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 	}
 
 	// generate token
-	signedToken, err := r.generateJWT(user.ID)
+	signedToken, err := utility.GenerateJWTWithID(user.ID)
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 
@@ -84,25 +80,7 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 	}
 
 	return &results.LoginResult{
-		AuthenticationToken: utility.Encode(signedToken),
-		RefreshToken:        utility.Encode(refreshToken),
+		JWTToken:     signedToken,
+		RefreshToken: utility.Encode(refreshToken),
 	}, nil
-}
-
-func (r LoginCommand) generateJWT(userID uint) (string, error) {
-
-	jwtExpiryHour, _ := strconv.Atoi(os.Getenv("EXPIRY_JWT"))
-	jwtSigningKey := os.Getenv("SECRET_JWT")
-
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": userID,
-		"exp": time.Now().Add(time.Duration(jwtExpiryHour) * time.Hour).Unix(),
-	})
-
-	signedToken, err := jwtToken.SignedString([]byte(jwtSigningKey))
-	if err != nil {
-		return "", err
-	}
-
-	return signedToken, nil
 }

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"gin/domain/entities"
 
 	"gorm.io/gorm"
@@ -23,6 +24,10 @@ func (r *UserRepository) GetByEmail(email string) (*entities.User, error) {
 	result := r.db.Where("email = ?", email).First(&user)
 
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
 		return nil, result.Error
 	}
 

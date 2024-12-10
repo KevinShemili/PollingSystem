@@ -9,7 +9,7 @@ import (
 )
 
 type AppContainer struct {
-	UnitOfWork contracts.IUnitOfWork // inject in auth-middleware
+	UnitOfWork contracts.IUnitOfWork // needed in auth-middleware
 
 	AuthenticationController *authentication.AuthenticationController
 }
@@ -27,9 +27,11 @@ func BuildContainer() *AppContainer {
 	// handlers
 	RegisterCommand := commands.NewRegisterCommand(UnitOfWork)
 	LoginCommand := commands.NewLoginCommand(UnitOfWork)
+	RefreshCommand := commands.NewRefreshCommand(UnitOfWork)
+	LogOutCommand := commands.NewLogOutCommand(UnitOfWork)
 
 	// controllers
-	AuthenticationController := authentication.NewAuthenticationController(RegisterCommand, LoginCommand)
+	AuthenticationController := authentication.NewAuthenticationController(RegisterCommand, LoginCommand, RefreshCommand, LogOutCommand)
 
 	return &AppContainer{
 		UnitOfWork: UnitOfWork,

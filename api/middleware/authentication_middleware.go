@@ -2,29 +2,26 @@ package middleware
 
 import (
 	"gin/application/repository/contracts"
-	"gin/application/utility"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func AuthenticationMiddleware(UnitOfWork contracts.IUnitOfWork, jwtSigningKey string) gin.HandlerFunc {
+func AuthenticationMiddleware(UnitOfWork contracts.IUnitOfWork) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		jwtSigningKey := os.Getenv("SECRET_JWT")
+
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
-		decodedToken, err := utility.Decode(authHeader)
-		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		jwtToken, err := jwt.Parse(decodedToken, func(t *jwt.Token) (interface{}, error) {
+		jwtToken, err := jwt.Parse(authHeader, func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}

@@ -58,7 +58,27 @@ var (
 	)
 
 	InvalidToken = NewErrorCode(
-		"Invalid Token Credentials.",
+		"Invalid Token.",
 		http.StatusUnauthorized,
+	)
+
+	Unauthorized = NewErrorCode(
+		"Unauthorized",
+		http.StatusUnauthorized,
+	)
+
+	DuplicateEmail = NewErrorCode(
+		"User already exists.",
+		http.StatusConflict,
+	)
+
+	EmailFormat = NewErrorCode(
+		"Invalid Email Format.",
+		http.StatusBadRequest,
+	)
+
+	PasswordFormat = NewErrorCode(
+		"Invalid Password.",
+		http.StatusBadRequest,
 	)
 )

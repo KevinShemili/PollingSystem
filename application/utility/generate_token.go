@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func GenerateRefreshToken() (string, time.Time, error) {
@@ -30,4 +32,41 @@ func GenerateRefreshToken() (string, time.Time, error) {
 	expirationTime := time.Now().UTC().Add(time.Duration(expiryDays) * 24 * time.Hour)
 
 	return refreshToken, expirationTime, nil
+}
+
+func GenerateJWTWithID(UserID uint) (string, error) {
+
+	jwtExpiryHour, _ := strconv.Atoi(os.Getenv("EXPIRY_JWT"))
+	jwtSigningKey := os.Getenv("SECRET_JWT")
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": UserID,
+		"exp": time.Now().Add(time.Duration(jwtExpiryHour) * time.Hour).Unix(),
+	})
+
+	signedToken, err := jwtToken.SignedString([]byte(jwtSigningKey))
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
+}
+
+func GenerateJWTWithClaims(claims jwt.MapClaims) (string, error) {
+
+	jwtExpiryHour, _ := strconv.Atoi(os.Getenv("EXPIRY_JWT"))
+	jwtSigningKey := os.Getenv("SECRET_JWT")
+
+	// update only expiry
+	claims["exp"] = time.Now().Add(time.Duration(jwtExpiryHour) * time.Hour).Unix()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign the token
+	signedToken, err := token.SignedString([]byte(jwtSigningKey))
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
 }

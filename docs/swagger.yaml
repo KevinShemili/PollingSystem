@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  requests.LogOutRequest:
+    properties:
+      user_id:
+        type: integer
+    type: object
   requests.LoginRequest:
     properties:
       email:
@@ -12,6 +17,27 @@ definitions:
       email:
         type: string
       password:
+        type: string
+    type: object
+  requests.TokensRequest:
+    properties:
+      jwt_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  results.LoginResult:
+    properties:
+      authentication_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  results.RefreshResult:
+    properties:
+      authentication_token:
+        type: string
+      refresh_token:
         type: string
     type: object
   utility.ErrorCode:
@@ -48,8 +74,7 @@ paths:
         "200":
           description: Authentication token and refresh token
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/results.LoginResult'
         "400":
           description: Binding failure
           schema:
@@ -67,21 +92,67 @@ paths:
       - Authentication
   /auth/logout:
     post:
+      consumes:
+      - application/json
       description: Ends the user session by invalidating the token (requires JWT).
+      parameters:
+      - description: LogOut Request (optional)
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/requests.LogOutRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: BRUH MOMENTUM
+          description: Successfully logged out
           schema:
             type: string
         "401":
           description: Unauthorized - Invalid or missing token
           schema:
             $ref: '#/definitions/utility.ErrorCode'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
       security:
       - BearerAuth: []
       summary: Log out a user
+      tags:
+      - Authentication
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh access and refresh tokens using the provided tokens.
+      parameters:
+      - description: Token Refresh Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.TokensRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New access and refresh tokens
+          schema:
+            $ref: '#/definitions/results.RefreshResult'
+        "400":
+          description: Binding failure
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      summary: Refresh user tokens
       tags:
       - Authentication
   /auth/register:

@@ -43,8 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Authentication token and refresh token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/results.LoginResult"
                         }
                     },
                     "400": {
@@ -76,6 +75,9 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Ends the user session by invalidating the token (requires JWT).",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -83,15 +85,83 @@ const docTemplate = `{
                     "Authentication"
                 ],
                 "summary": "Log out a user",
+                "parameters": [
+                    {
+                        "description": "LogOut Request (optional)",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/requests.LogOutRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "BRUH MOMENTUM",
+                        "description": "Successfully logged out",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
                         "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "Refresh access and refresh tokens using the provided tokens.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh user tokens",
+                "parameters": [
+                    {
+                        "description": "Token Refresh Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.TokensRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New access and refresh tokens",
+                        "schema": {
+                            "$ref": "#/definitions/results.RefreshResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Binding failure",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -148,6 +218,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "requests.LogOutRequest": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "requests.LoginRequest": {
             "type": "object",
             "properties": {
@@ -166,6 +244,39 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "requests.TokensRequest": {
+            "type": "object",
+            "properties": {
+                "jwt_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "results.LoginResult": {
+            "type": "object",
+            "properties": {
+                "authentication_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "results.RefreshResult": {
+            "type": "object",
+            "properties": {
+                "authentication_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
                     "type": "string"
                 }
             }
