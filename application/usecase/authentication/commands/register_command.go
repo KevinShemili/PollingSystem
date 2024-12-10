@@ -9,11 +9,11 @@ import (
 )
 
 type RegisterCommand struct {
-	UserRepository contracts.IUserRepository
+	UnitOfWork contracts.IUnitOfWork
 }
 
-func NewRegisterCommand(UserRepository contracts.IUserRepository) *RegisterCommand {
-	return &RegisterCommand{UserRepository: UserRepository}
+func NewRegisterCommand(UnitOfWork contracts.IUnitOfWork) *RegisterCommand {
+	return &RegisterCommand{UnitOfWork: UnitOfWork}
 }
 
 func (r RegisterCommand) Register(request *requests.RegisterRequest) (bool, error) {
@@ -23,7 +23,7 @@ func (r RegisterCommand) Register(request *requests.RegisterRequest) (bool, erro
 		print("01")
 	}
 
-	err = r.UserRepository.Create(&entities.User{
+	err = r.UnitOfWork.Users().Create(&entities.User{
 		Email:        request.Email,
 		PasswordHash: string(hash),
 	})

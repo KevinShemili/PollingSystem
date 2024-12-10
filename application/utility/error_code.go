@@ -56,4 +56,9 @@ var (
 		"Binding Failure.",
 		http.StatusInternalServerError,
 	)
+
+	InvalidToken = NewErrorCode(
+		"Invalid Token Credentials.",
+		http.StatusUnauthorized,
+	)
 )

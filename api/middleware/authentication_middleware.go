@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"gin/application/repository/contracts"
+	"gin/application/utility"
 	"net/http"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func AuthenticationMiddleware(UserRepository contracts.IUserRepository, jwtSigningKey string) gin.HandlerFunc {
+func AuthenticationMiddleware(UnitOfWork contracts.IUnitOfWork, jwtSigningKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -17,7 +18,13 @@ func AuthenticationMiddleware(UserRepository contracts.IUserRepository, jwtSigni
 			return
 		}
 
-		jwtToken, err := jwt.Parse(authHeader, func(t *jwt.Token) (interface{}, error) {
+		decodedToken, err := utility.Decode(authHeader)
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		jwtToken, err := jwt.Parse(decodedToken, func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}
@@ -39,7 +46,7 @@ func AuthenticationMiddleware(UserRepository contracts.IUserRepository, jwtSigni
 
 			userID := uint(claims["sub"].(float64))
 
-			user, err := UserRepository.GetByID(userID)
+			user, err := UnitOfWork.Users().GetByID(userID)
 
 			if err != nil || user == nil {
 				c.AbortWithStatus(http.StatusUnauthorized)

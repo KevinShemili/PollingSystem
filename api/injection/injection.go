@@ -9,7 +9,7 @@ import (
 )
 
 type AppContainer struct {
-	UserRepository contracts.IUserRepository // inject in auth-middleware
+	UnitOfWork contracts.IUnitOfWork // inject in auth-middleware
 
 	AuthenticationController *authentication.AuthenticationController
 }
@@ -21,13 +21,18 @@ func BuildContainer() *AppContainer {
 	database, _ := database.NewDatabase()
 	dbContext := database.GetDBContext()
 
-	UserRepository := repository.NewUserRepository(dbContext)
-	RegisterCommand := commands.NewRegisterCommand(UserRepository)
-	LoginCommand := commands.NewLoginCommand(UserRepository)
+	// unit of work - repositories inside
+	UnitOfWork := repository.NewUnitOfWork(dbContext)
+
+	// handlers
+	RegisterCommand := commands.NewRegisterCommand(UnitOfWork)
+	LoginCommand := commands.NewLoginCommand(UnitOfWork)
+
+	// controllers
 	AuthenticationController := authentication.NewAuthenticationController(RegisterCommand, LoginCommand)
 
 	return &AppContainer{
-		UserRepository: UserRepository,
+		UnitOfWork: UnitOfWork,
 
 		AuthenticationController: AuthenticationController,
 	}

@@ -16,7 +16,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	}
 }
 
-func (r *UserRepository) FindByEmail(email string) (*entities.User, error) {
+func (r *UserRepository) GetByEmail(email string) (*entities.User, error) {
 
 	var user entities.User
 
