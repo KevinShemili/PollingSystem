@@ -21,7 +21,8 @@ func main() {
 	database, _ := database.NewDatabase()
 	dbContext := database.GetDBContext()
 
-	dbContext.AutoMigrate(&entities.User{}, &entities.RefreshToken{})
+	dbContext.AutoMigrate(&entities.User{}, &entities.RefreshToken{}, &entities.Poll{},
+		&entities.PollCategory{}, &entities.Vote{})
 	log.Println("Migration Complete.")
 }
 

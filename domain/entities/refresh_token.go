@@ -12,8 +12,11 @@ type RefreshToken struct {
 	Token     string
 	Expiry    time.Time
 	JWTToken  string
-	IsDeleted bool
+	IsDeleted bool `gorm:"default:false"`
 
+	// fk
 	UserID uint
-	User   User `gorm:"constraint:OnDelete:SET NULL;"`
+
+	// relations
+	User User `gorm:"foreignKey:UserID;constraint:OnDelete:SET NULL;"`
 }
