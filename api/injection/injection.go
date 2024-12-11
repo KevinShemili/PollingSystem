@@ -1,17 +1,19 @@
 package injection
 
 import (
-	"gin/api/authentication"
+	"gin/api/controllers"
 	"gin/application/repository"
 	"gin/application/repository/contracts"
-	"gin/application/usecase/authentication/commands"
+	authCommands "gin/application/usecase/authentication/commands"
+	pollCommands "gin/application/usecase/poll/commands"
 	"gin/infrastructure/database"
 )
 
 type AppContainer struct {
 	UnitOfWork contracts.IUnitOfWork // needed in auth-middleware
 
-	AuthenticationController *authentication.AuthenticationController
+	AuthenticationController *controllers.AuthenticationController
+	PollController           *controllers.PollController
 }
 
 // Set up all the dependencies & return controllers
@@ -25,17 +27,20 @@ func BuildContainer() *AppContainer {
 	UnitOfWork := repository.NewUnitOfWork(dbContext)
 
 	// handlers
-	RegisterCommand := commands.NewRegisterCommand(UnitOfWork)
-	LoginCommand := commands.NewLoginCommand(UnitOfWork)
-	RefreshCommand := commands.NewRefreshCommand(UnitOfWork)
-	LogOutCommand := commands.NewLogOutCommand(UnitOfWork)
+	RegisterCommand := authCommands.NewRegisterCommand(UnitOfWork)
+	LoginCommand := authCommands.NewLoginCommand(UnitOfWork)
+	RefreshCommand := authCommands.NewRefreshCommand(UnitOfWork)
+	LogOutCommand := authCommands.NewLogOutCommand(UnitOfWork)
+	CreatePollCommand := pollCommands.NewCreatePollCommand(UnitOfWork)
 
 	// controllers
-	AuthenticationController := authentication.NewAuthenticationController(RegisterCommand, LoginCommand, RefreshCommand, LogOutCommand)
+	AuthenticationController := controllers.NewAuthenticationController(RegisterCommand, LoginCommand, RefreshCommand, LogOutCommand)
+	PollController := controllers.NewPollController(CreatePollCommand)
 
 	return &AppContainer{
 		UnitOfWork: UnitOfWork,
 
 		AuthenticationController: AuthenticationController,
+		PollController:           PollController,
 	}
 }

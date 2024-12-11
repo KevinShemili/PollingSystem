@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  requests.CreatePollRequest:
+    properties:
+      categories:
+        items:
+          type: string
+        type: array
+      expires_at:
+        type: string
+      title:
+        type: string
+    type: object
   requests.LogOutRequest:
     properties:
       user_id:
@@ -26,16 +37,18 @@ definitions:
       refresh_token:
         type: string
     type: object
+  results.CreatePollResult:
+    type: object
   results.LoginResult:
     properties:
-      authentication_token:
+      jwt_token:
         type: string
       refresh_token:
         type: string
     type: object
   results.RefreshResult:
     properties:
-      authentication_token:
+      jwt_token:
         type: string
       refresh_token:
         type: string
@@ -186,6 +199,43 @@ paths:
       summary: Register a new user
       tags:
       - Authentication
+  /polls:
+    post:
+      consumes:
+      - application/json
+      description: Create a new poll with a title, expiration time, and categories.
+        The user must be authenticated.
+      parameters:
+      - description: Create Poll Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreatePollRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poll created successfully
+          schema:
+            $ref: '#/definitions/results.CreatePollResult'
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      security:
+      - BearerAuth: []
+      summary: Create a new poll
+      tags:
+      - Polls
 securityDefinitions:
   BearerAuth:
     in: header

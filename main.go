@@ -1,9 +1,9 @@
 package main
 
 import (
-	"gin/api/authentication"
 	"gin/api/initializers"
 	"gin/api/injection"
+	"gin/api/routes"
 	"gin/infrastructure/websocket"
 	"net/http"
 
@@ -33,7 +33,8 @@ func main() {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	authentication.AuthenticationRoutes(r, container.AuthenticationController, container.UnitOfWork)
+	routes.AuthenticationRoutes(r, container.AuthenticationController, container.UnitOfWork)
+	routes.PollRoutes(r, container.PollController, container.UnitOfWork)
 
 	// -------------------------------------------------------------------------------------
 

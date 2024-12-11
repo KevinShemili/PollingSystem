@@ -215,9 +215,83 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/polls": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new poll with a title, expiration time, and categories. The user must be authenticated.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Polls"
+                ],
+                "summary": "Create a new poll",
+                "parameters": [
+                    {
+                        "description": "Create Poll Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.CreatePollRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poll created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/results.CreatePollResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "requests.CreatePollRequest": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "requests.LogOutRequest": {
             "type": "object",
             "properties": {
@@ -259,10 +333,13 @@ const docTemplate = `{
                 }
             }
         },
+        "results.CreatePollResult": {
+            "type": "object"
+        },
         "results.LoginResult": {
             "type": "object",
             "properties": {
-                "authentication_token": {
+                "jwt_token": {
                     "type": "string"
                 },
                 "refresh_token": {
@@ -273,7 +350,7 @@ const docTemplate = `{
         "results.RefreshResult": {
             "type": "object",
             "properties": {
-                "authentication_token": {
+                "jwt_token": {
                     "type": "string"
                 },
                 "refresh_token": {
