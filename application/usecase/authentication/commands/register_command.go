@@ -2,7 +2,8 @@ package commands
 
 import (
 	"gin/api/requests"
-	"gin/application/repository/contracts"
+	repo "gin/application/repository/contracts"
+	"gin/application/usecase/authentication/commands/contracts"
 	"gin/application/utility"
 	"gin/domain/entities"
 
@@ -10,16 +11,16 @@ import (
 )
 
 type RegisterCommand struct {
-	UnitOfWork contracts.IUnitOfWork
+	UnitOfWork repo.IUnitOfWork
 }
 
-func NewRegisterCommand(UnitOfWork contracts.IUnitOfWork) *RegisterCommand {
+func NewRegisterCommand(UnitOfWork repo.IUnitOfWork) contracts.IRegisterCommand {
 	return &RegisterCommand{UnitOfWork: UnitOfWork}
 }
 
 func (r RegisterCommand) Register(request *requests.RegisterRequest) (bool, *utility.ErrorCode) {
 
-	duplicate, err := r.UnitOfWork.Users().GetByEmail(request.Email)
+	duplicate, err := r.UnitOfWork.IUserRepository().GetByEmail(request.Email)
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
@@ -40,7 +41,7 @@ func (r RegisterCommand) Register(request *requests.RegisterRequest) (bool, *uti
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 
-	if err := r.UnitOfWork.Users().Create(&entities.User{
+	if err := r.UnitOfWork.IUserRepository().Create(&entities.User{
 		Email:        request.Email,
 		PasswordHash: string(hash),
 	}); err != nil {

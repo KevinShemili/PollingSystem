@@ -3,7 +3,8 @@ package commands
 import (
 	"errors"
 	"gin/api/requests"
-	"gin/application/repository/contracts"
+	repo "gin/application/repository/contracts"
+	"gin/application/usecase/authentication/commands/contracts"
 	"gin/application/usecase/authentication/results"
 	"gin/application/utility"
 	"gin/domain/entities"
@@ -14,10 +15,10 @@ import (
 )
 
 type RefreshCommand struct {
-	UnitOfWork contracts.IUnitOfWork
+	UnitOfWork repo.IUnitOfWork
 }
 
-func NewRefreshCommand(UnitOfWork contracts.IUnitOfWork) *RefreshCommand {
+func NewRefreshCommand(UnitOfWork repo.IUnitOfWork) contracts.IRefreshCommand {
 	return &RefreshCommand{UnitOfWork: UnitOfWork}
 }
 
@@ -43,7 +44,7 @@ func (r RefreshCommand) Refresh(request *requests.TokensRequest) (*results.Refre
 
 	// check if user exists
 	userID := int(claims["sub"].(float64))
-	user, err := r.UnitOfWork.Users().GetByID(uint(userID))
+	user, err := r.UnitOfWork.IUserRepository().GetByID(uint(userID))
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
@@ -52,7 +53,7 @@ func (r RefreshCommand) Refresh(request *requests.TokensRequest) (*results.Refre
 	}
 
 	// check if refresh is correct, JWT is correct & refresh is NOT expired
-	currentRefresh, err := r.UnitOfWork.RefreshTokens().GetByUserID(user.ID)
+	currentRefresh, err := r.UnitOfWork.IRefreshTokenRepository().GetByUserID(user.ID)
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
@@ -73,12 +74,12 @@ func (r RefreshCommand) Refresh(request *requests.TokensRequest) (*results.Refre
 	}
 
 	// Delete old refresh
-	if err := uof.RefreshTokens().Delete(currentRefresh.ID); err != nil {
+	if err := uof.IRefreshTokenRepository().Delete(currentRefresh.ID); err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
 
 	// Save new refresh
-	if err := uof.RefreshTokens().Create(&entities.RefreshToken{
+	if err := uof.IRefreshTokenRepository().Create(&entities.RefreshToken{
 		Token:     newRefresh,
 		Expiry:    expiry,
 		JWTToken:  newJWT,

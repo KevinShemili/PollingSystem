@@ -2,7 +2,8 @@ package commands
 
 import (
 	"gin/api/requests"
-	"gin/application/repository/contracts"
+	repo "gin/application/repository/contracts"
+	"gin/application/usecase/authentication/commands/contracts"
 	"gin/application/usecase/authentication/results"
 	"gin/application/utility"
 	"gin/domain/entities"
@@ -11,10 +12,10 @@ import (
 )
 
 type LoginCommand struct {
-	UnitOfWork contracts.IUnitOfWork
+	UnitOfWork repo.IUnitOfWork
 }
 
-func NewLoginCommand(UnitOfWork contracts.IUnitOfWork) *LoginCommand {
+func NewLoginCommand(UnitOfWork repo.IUnitOfWork) contracts.ILoginCommand {
 	return &LoginCommand{UnitOfWork: UnitOfWork}
 }
 
@@ -27,7 +28,7 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 	defer uof.Rollback()
 
 	// check if email exists
-	user, err := r.UnitOfWork.Users().GetByEmail(request.Email)
+	user, err := r.UnitOfWork.IUserRepository().GetByEmail(request.Email)
 
 	if err != nil || user == nil {
 		return nil, utility.IncorrectEmail
@@ -47,13 +48,13 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 	}
 
 	// remove old refresh
-	oldRefresh, err := r.UnitOfWork.RefreshTokens().GetByUserID(user.ID)
+	oldRefresh, err := r.UnitOfWork.IRefreshTokenRepository().GetByUserID(user.ID)
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
 
 	if oldRefresh != nil {
-		if err := r.UnitOfWork.RefreshTokens().Delete(oldRefresh.ID); err != nil {
+		if err := r.UnitOfWork.IRefreshTokenRepository().Delete(oldRefresh.ID); err != nil {
 			return nil, utility.InternalServerError.WithDescription(err.Error())
 		}
 	}
@@ -64,7 +65,7 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
 
-	if err := r.UnitOfWork.RefreshTokens().Create(&entities.RefreshToken{
+	if err := r.UnitOfWork.IRefreshTokenRepository().Create(&entities.RefreshToken{
 		Token:     refreshToken,
 		Expiry:    expiry,
 		JWTToken:  signedToken,

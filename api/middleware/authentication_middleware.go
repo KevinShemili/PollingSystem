@@ -43,7 +43,7 @@ func AuthenticationMiddleware(UnitOfWork contracts.IUnitOfWork) gin.HandlerFunc 
 
 			userID := uint(claims["sub"].(float64))
 
-			user, err := UnitOfWork.Users().GetByID(userID)
+			user, err := UnitOfWork.IUserRepository().GetByID(userID)
 
 			if err != nil || user == nil {
 				c.AbortWithStatus(http.StatusUnauthorized)

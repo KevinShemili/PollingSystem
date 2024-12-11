@@ -2,15 +2,16 @@ package commands
 
 import (
 	"gin/api/requests"
-	"gin/application/repository/contracts"
+	repo "gin/application/repository/contracts"
+	"gin/application/usecase/authentication/commands/contracts"
 	"gin/application/utility"
 )
 
 type LogOutCommand struct {
-	UnitOfWork contracts.IUnitOfWork
+	UnitOfWork repo.IUnitOfWork
 }
 
-func NewLogOutCommand(UnitOfWork contracts.IUnitOfWork) *LogOutCommand {
+func NewLogOutCommand(UnitOfWork repo.IUnitOfWork) contracts.ILogOutCommand {
 	return &LogOutCommand{UnitOfWork: UnitOfWork}
 }
 
@@ -22,12 +23,12 @@ func (r LogOutCommand) LogOut(request *requests.LogOutRequest) (bool, *utility.E
 	}
 	defer uof.Rollback()
 
-	refreshToken, err := r.UnitOfWork.RefreshTokens().GetByUserID(uint(request.UserID))
+	refreshToken, err := r.UnitOfWork.IRefreshTokenRepository().GetByUserID(uint(request.UserID))
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 
-	if err := uof.RefreshTokens().Delete(refreshToken.ID); err != nil {
+	if err := uof.IRefreshTokenRepository().Delete(refreshToken.ID); err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 

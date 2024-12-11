@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"gin/application/repository/contracts"
 	"gin/domain/entities"
 
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ type RefreshTokenRepository struct {
 	*Repository[entities.RefreshToken]
 }
 
-func NewRefreshTokenRepository(db *gorm.DB) *RefreshTokenRepository {
+func NewRefreshTokenRepository(db *gorm.DB) contracts.IRefreshTokenRepository {
 	return &RefreshTokenRepository{
 		Repository: NewRepository[entities.RefreshToken](db),
 	}

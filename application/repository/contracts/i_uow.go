@@ -9,6 +9,9 @@ type IUnitOfWork interface {
 	DB() *gorm.DB
 
 	// Repositories
-	Users() IUserRepository
-	RefreshTokens() IRefreshTokenRepository
+	IUserRepository() IUserRepository
+	IRefreshTokenRepository() IRefreshTokenRepository
+	IVoteRepository() IVoteRepository
+	IPollRepository() IPollRepository
+	IPollCategoryRepository() IPollCategoryRepository
 }

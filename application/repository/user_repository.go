@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"gin/application/repository/contracts"
 	"gin/domain/entities"
 
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ type UserRepository struct {
 	*Repository[entities.User]
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
+func NewUserRepository(db *gorm.DB) contracts.IUserRepository {
 	return &UserRepository{
 		Repository: NewRepository[entities.User](db),
 	}
