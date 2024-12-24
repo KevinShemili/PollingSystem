@@ -81,4 +81,29 @@ var (
 		"Invalid Password.",
 		http.StatusBadRequest,
 	)
+
+	InvalidPollID = NewErrorCode(
+		"Poll does not exist.",
+		http.StatusBadRequest,
+	)
+
+	InvalidCategoryID = NewErrorCode(
+		"The poll does not contain the given category.",
+		http.StatusBadRequest,
+	)
+
+	PollExpired = NewErrorCode(
+		"Unable to add new vote as poll has finished.",
+		http.StatusBadRequest,
+	)
+
+	AlreadyVoted = NewErrorCode(
+		"You have already voted in this poll.",
+		http.StatusBadRequest,
+	)
+
+	RouteParameterCast = NewErrorCode(
+		"Invalid route parameter format",
+		http.StatusBadRequest,
+	)
 )

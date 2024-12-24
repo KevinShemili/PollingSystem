@@ -12,7 +12,7 @@ type Poll struct {
 	Title     string
 	LifeTime  time.Time
 	IsEnded   bool `gorm:"default:false"`
-	IsDeteled bool `gorm:"default:false"`
+	IsDeleted bool `gorm:"default:false"`
 
 	// fk
 	CreatorID uint

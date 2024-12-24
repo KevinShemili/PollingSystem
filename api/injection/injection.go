@@ -32,10 +32,11 @@ func BuildContainer() *AppContainer {
 	RefreshCommand := authCommands.NewRefreshCommand(UnitOfWork)
 	LogOutCommand := authCommands.NewLogOutCommand(UnitOfWork)
 	CreatePollCommand := pollCommands.NewCreatePollCommand(UnitOfWork)
+	AddVoteCommand := pollCommands.NewAddVoteCommand(UnitOfWork)
 
 	// controllers
 	AuthenticationController := controllers.NewAuthenticationController(RegisterCommand, LoginCommand, RefreshCommand, LogOutCommand)
-	PollController := controllers.NewPollController(CreatePollCommand)
+	PollController := controllers.NewPollController(CreatePollCommand, AddVoteCommand)
 
 	return &AppContainer{
 		UnitOfWork: UnitOfWork,

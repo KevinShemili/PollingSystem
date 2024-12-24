@@ -13,5 +13,6 @@ func PollRoutes(r *gin.Engine, controller *controllers.PollController, UnitOfWor
 	auth := r.Group("/polls")
 	{
 		auth.POST("", middleware.AuthenticationMiddleware(UnitOfWork), controller.CreatePoll)
+		auth.POST("/:id/vote", middleware.AuthenticationMiddleware(UnitOfWork), controller.AddVote)
 	}
 }

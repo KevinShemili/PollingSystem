@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  requests.AddVoteRequest:
+    properties:
+      poll_category_id:
+        type: integer
+    type: object
   requests.CreatePollRequest:
     properties:
       categories:
@@ -37,7 +42,20 @@ definitions:
       refresh_token:
         type: string
     type: object
+  results.AddVoteResult:
+    type: object
   results.CreatePollResult:
+    properties:
+      categories:
+        items:
+          type: string
+        type: array
+      isEnded:
+        type: boolean
+      lifeTime:
+        type: string
+      title:
+        type: string
     type: object
   results.LoginResult:
     properties:
@@ -234,6 +252,52 @@ paths:
       security:
       - BearerAuth: []
       summary: Create a new poll
+      tags:
+      - Polls
+  /polls/{id}/vote:
+    post:
+      consumes:
+      - application/json
+      description: Add a vote to a specific poll category by providing the poll ID
+        in the route and the category ID in the request body. The user must be authenticated.
+      parameters:
+      - description: Poll ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Add Vote Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AddVoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Vote added successfully
+          schema:
+            $ref: '#/definitions/results.AddVoteResult'
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "404":
+          description: Poll or category not found
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      security:
+      - BearerAuth: []
+      summary: Vote on a poll
       tags:
       - Polls
 securityDefinitions:

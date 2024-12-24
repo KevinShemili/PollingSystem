@@ -266,9 +266,87 @@
                     }
                 }
             }
+        },
+        "/polls/{id}/vote": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add a vote to a specific poll category by providing the poll ID in the route and the category ID in the request body. The user must be authenticated.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Polls"
+                ],
+                "summary": "Vote on a poll",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Poll ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Add Vote Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.AddVoteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Vote added successfully",
+                        "schema": {
+                            "$ref": "#/definitions/results.AddVoteResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "404": {
+                        "description": "Poll or category not found",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "requests.AddVoteRequest": {
+            "type": "object",
+            "properties": {
+                "poll_category_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "requests.CreatePollRequest": {
             "type": "object",
             "properties": {
@@ -327,8 +405,28 @@
                 }
             }
         },
-        "results.CreatePollResult": {
+        "results.AddVoteResult": {
             "type": "object"
+        },
+        "results.CreatePollResult": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "isEnded": {
+                    "type": "boolean"
+                },
+                "lifeTime": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
         },
         "results.LoginResult": {
             "type": "object",

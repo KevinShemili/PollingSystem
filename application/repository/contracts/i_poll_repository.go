@@ -4,4 +4,6 @@ import "gin/domain/entities"
 
 type IPollRepository interface {
 	IRepository[entities.Poll]
+
+	GetPollWithVotes(pollID uint) (*entities.Poll, error)
 }
