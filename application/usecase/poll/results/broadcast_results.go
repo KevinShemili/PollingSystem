@@ -27,3 +27,10 @@ type BroadcastVote struct {
 		} `json:"categories"`
 	} `json:"data"`
 }
+
+type BroadcastExpiry struct {
+	BroadcastType string `json:"type"`
+	Data          struct {
+		PollID uint `json:"poll_id"`
+	} `json:"data"`
+}

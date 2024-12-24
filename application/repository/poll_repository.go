@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"errors"
 	"gin/application/repository/contracts"
 	"gin/domain/entities"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -27,4 +29,19 @@ func (r *PollRepository) GetPollWithVotes(pollID uint) (*entities.Poll, error) {
 	}
 
 	return &poll, nil
+}
+
+func (r *PollRepository) GetExpiredPolls(currentTime time.Time) ([]*entities.Poll, error) {
+	var polls []*entities.Poll
+
+	err := r.db.Where("is_ended = ? AND life_time < ?", false, currentTime).Find(&polls).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return polls, nil
 }

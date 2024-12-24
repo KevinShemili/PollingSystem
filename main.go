@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"gin/api/initializers"
 	"gin/api/injection"
 	"gin/api/routes"
+	"gin/application/usecase/poll/commands"
 	"gin/infrastructure/websocket"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -52,14 +55,19 @@ func main() {
 		select {}
 	})
 
-	// Simple controller to broadcast junk
-	r.GET("/broadcast", func(c *gin.Context) {
-		websocket.BroadcastMessage("This is junk data!") // Send junk data to the broadcast channel
-		c.JSON(200, gin.H{"message": "Broadcast sent"})
-	})
-
 	// Start broadcaster in a goroutine
 	go websocket.HandleBroadcast()
+
+	// routine for poll expiration
+	go func() {
+		// check 1 minute - check for expiries
+		ticker := time.NewTicker(20 * time.Second)
+		for range ticker.C {
+			if err := commands.EndExpiredPolls(container.UnitOfWork); err != nil {
+				fmt.Printf("Poll Expiry Error: %v", err)
+			}
+		}
+	}()
 
 	r.Run()
 }
