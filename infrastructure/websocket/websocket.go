@@ -4,23 +4,24 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
 
+// this is used to upgrade HTTP -> WebSocket
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow any origin for simplicity
+		return true
 	},
 }
 
-var clients = make(map[*websocket.Conn]bool) // Connected WebSocket clients
-var broadcast = make(chan string)            // Broadcast channel
-var mutex = &sync.Mutex{}                    // Protect the clients map
+var clients = make(map[*websocket.Conn]bool)
+var broadcast = make(chan string)
+var mutex = &sync.Mutex{}
 
-// UpgradeConnection upgrades an HTTP connection to a WebSocket connection.
 func UpgradeConnection(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
+
+	// websocket handshake
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return nil, err
@@ -31,38 +32,24 @@ func UpgradeConnection(w http.ResponseWriter, r *http.Request) (*websocket.Conn,
 	clients[conn] = true
 	mutex.Unlock()
 
-	// Set up read deadline and pong handler
-	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
-	conn.SetPongHandler(func(appData string) error {
-		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
-		return nil
-	})
-
-	fmt.Println("New WebSocket connection established")
+	fmt.Println("New websocket client.")
 	return conn, nil
 }
 
-// DeregisterClient removes a WebSocket connection from the clients list.
-func DeregisterClient(conn *websocket.Conn) {
-	mutex.Lock()
-	delete(clients, conn)
-	mutex.Unlock()
-	err := conn.Close()
-	if err != nil {
-		fmt.Printf("Error closing WebSocket connection: %v\n", err)
-	}
-}
-
-// BroadcastMessage sends a message to the broadcast channel.
+// place message in broadcast channel -> broadcast to all clients
 func BroadcastMessage(msg string) {
 	broadcast <- msg
 }
 
-// HandleBroadcast continuously listens for messages on the broadcast channel and sends them to all connected clients.
+// continuously listens for new mssg on channel -> sends them to connected clients
 func HandleBroadcast() {
+
 	for {
+
 		msg := <-broadcast
+
 		mutex.Lock()
+
 		for client := range clients {
 			err := client.WriteMessage(websocket.TextMessage, []byte(msg))
 			if err != nil {
@@ -71,6 +58,7 @@ func HandleBroadcast() {
 				delete(clients, client)
 			}
 		}
+
 		mutex.Unlock()
 	}
 }

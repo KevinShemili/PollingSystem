@@ -41,27 +41,28 @@ func main() {
 
 	// -------------------------------------------------------------------------------------
 
-	// WEBSOCKETS
-	// Keep the connection open without reading messages
+	// WEBSOCKET
 	r.GET("/ws", func(c *gin.Context) {
-		conn, err := websocket.UpgradeConnection(c.Writer, c.Request)
+
+		_, err := websocket.UpgradeConnection(c.Writer, c.Request)
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "WebSocket upgrade failed"})
 			return
 		}
-		defer websocket.DeregisterClient(conn)
 
 		// Block indefinitely
 		select {}
 	})
 
-	// Start broadcaster in a goroutine
+	// broadcaster in a goroutine
 	go websocket.HandleBroadcast()
 
 	// routine for poll expiration
 	go func() {
-		// check 1 minute - check for expiries
-		ticker := time.NewTicker(20 * time.Second)
+		// every 1 minute - check for expiries
+		ticker := time.NewTicker(1 * time.Minute)
+
 		for range ticker.C {
 			if err := commands.EndExpiredPolls(container.UnitOfWork); err != nil {
 				fmt.Printf("Poll Expiry Error: %v", err)
