@@ -32,7 +32,7 @@ func (r DeletePollCommand) DeletePoll(pollID uint) (bool, *utility.ErrorCode) {
 	}
 
 	// delete poll
-	if err := r.UnitOfWork.IPollRepository().Delete(pollID); err != nil {
+	if err := r.UnitOfWork.IPollRepository().SoftDelete(pollID); err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 

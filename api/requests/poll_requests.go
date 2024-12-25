@@ -10,3 +10,12 @@ type AddVoteRequest struct {
 	PollID         uint `json:"-"`
 	PollCategoryID uint `json:"poll_category_id"`
 }
+
+type UpdatePollRequest struct {
+	PollID           uint     `json:"-"`
+	Title            string   `json:"title"`
+	ExpiresAt        string   `json:"expires_at"`
+	Description      string   `json:"description"`
+	DeleteCategories []uint   `json:"delete_categories"`
+	NewCategories    []string `json:"new_categories"`
+}

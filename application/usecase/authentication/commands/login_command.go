@@ -54,7 +54,7 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 	}
 
 	if oldRefresh != nil {
-		if err := r.UnitOfWork.IRefreshTokenRepository().Delete(oldRefresh.ID); err != nil {
+		if err := r.UnitOfWork.IRefreshTokenRepository().SoftDelete(oldRefresh.ID); err != nil {
 			return nil, utility.InternalServerError.WithDescription(err.Error())
 		}
 	}
@@ -66,11 +66,10 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 	}
 
 	if err := r.UnitOfWork.IRefreshTokenRepository().Create(&entities.RefreshToken{
-		Token:     refreshToken,
-		Expiry:    expiry,
-		JWTToken:  signedToken,
-		UserID:    user.ID,
-		IsDeleted: false,
+		Token:    refreshToken,
+		Expiry:   expiry,
+		JWTToken: signedToken,
+		UserID:   user.ID,
 	}); err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}

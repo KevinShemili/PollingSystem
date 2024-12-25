@@ -29,7 +29,7 @@ func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user 
 	defer uof.Rollback()
 
 	// Convert to time.Time
-	lifetime, err := time.Parse(time.RFC3339, request.ExpiresAt)
+	expiresAt, err := time.Parse(time.RFC3339, request.ExpiresAt)
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
@@ -44,7 +44,7 @@ func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user 
 
 	pollEntity := &entities.Poll{
 		Title:      request.Title,
-		LifeTime:   lifetime,
+		ExpiresAt:  expiresAt,
 		IsEnded:    false,
 		CreatorID:  user.ID,
 		Categories: categories,
@@ -63,7 +63,7 @@ func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user 
 	broadcastData.BroadcastType = "new-poll"
 	broadcastData.Data.PollID = pollEntity.ID
 	broadcastData.Data.Title = pollEntity.Title
-	broadcastData.Data.ExpiresAt = pollEntity.LifeTime
+	broadcastData.Data.ExpiresAt = pollEntity.ExpiresAt
 	broadcastData.Data.Ended = pollEntity.IsEnded
 
 	for _, category := range pollEntity.Categories {
@@ -83,7 +83,7 @@ func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user 
 
 	return &results.CreatePollResult{
 		Title:      pollEntity.Title,
-		LifeTime:   pollEntity.LifeTime,
+		ExpiresAt:  pollEntity.ExpiresAt,
 		IsEnded:    false,
 		Categories: request.Categories,
 	}, nil

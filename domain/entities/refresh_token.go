@@ -9,10 +9,9 @@ import (
 type RefreshToken struct {
 	gorm.Model
 
-	Token     string
-	Expiry    time.Time
-	JWTToken  string
-	IsDeleted bool `gorm:"default:false"`
+	Token    string
+	Expiry   time.Time
+	JWTToken string
 
 	// fk
 	UserID uint

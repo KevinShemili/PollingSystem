@@ -542,11 +542,11 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "expiresAt": {
+                    "type": "string"
+                },
                 "isEnded": {
                     "type": "boolean"
-                },
-                "lifeTime": {
-                    "type": "string"
                 },
                 "title": {
                     "type": "string"

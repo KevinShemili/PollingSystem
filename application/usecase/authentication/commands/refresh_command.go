@@ -74,17 +74,16 @@ func (r RefreshCommand) Refresh(request *requests.TokensRequest) (*results.Refre
 	}
 
 	// Delete old refresh
-	if err := uof.IRefreshTokenRepository().Delete(currentRefresh.ID); err != nil {
+	if err := uof.IRefreshTokenRepository().SoftDelete(currentRefresh.ID); err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
 
 	// Save new refresh
 	if err := uof.IRefreshTokenRepository().Create(&entities.RefreshToken{
-		Token:     newRefresh,
-		Expiry:    expiry,
-		JWTToken:  newJWT,
-		UserID:    user.ID,
-		IsDeleted: false,
+		Token:    newRefresh,
+		Expiry:   expiry,
+		JWTToken: newJWT,
+		UserID:   user.ID,
 	}); err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}

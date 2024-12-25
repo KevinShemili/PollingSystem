@@ -22,7 +22,7 @@ func (r *RefreshTokenRepository) GetByUserID(userID uint) (*entities.RefreshToke
 
 	var refreshToken entities.RefreshToken
 
-	result := r.db.Where("user_id = ? AND is_deleted = ?", userID, false).First(&refreshToken)
+	result := r.db.Where("user_id = ?", userID).First(&refreshToken)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

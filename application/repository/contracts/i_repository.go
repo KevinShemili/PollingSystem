@@ -5,5 +5,6 @@ type IRepository[T any] interface {
 	GetAll() ([]T, error)
 	Create(entity *T) error
 	Update(entity *T) error
-	Delete(id uint) error
+	SoftDelete(id uint) error
+	HardDelete(id uint) error
 }

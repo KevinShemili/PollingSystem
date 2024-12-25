@@ -48,10 +48,10 @@ definitions:
         items:
           type: string
         type: array
+      expiresAt:
+        type: string
       isEnded:
         type: boolean
-      lifeTime:
-        type: string
       title:
         type: string
     type: object

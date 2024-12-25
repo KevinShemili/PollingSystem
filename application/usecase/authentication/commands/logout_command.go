@@ -28,7 +28,7 @@ func (r LogOutCommand) LogOut(request *requests.LogOutRequest) (bool, *utility.E
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 
-	if err := uof.IRefreshTokenRepository().Delete(refreshToken.ID); err != nil {
+	if err := uof.IRefreshTokenRepository().SoftDelete(refreshToken.ID); err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 

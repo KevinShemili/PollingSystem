@@ -9,10 +9,10 @@ import (
 type Poll struct {
 	gorm.Model
 
-	Title     string
-	LifeTime  time.Time
-	IsEnded   bool `gorm:"default:false"`
-	IsDeleted bool `gorm:"default:false"`
+	Title       string
+	Description string
+	ExpiresAt   time.Time
+	IsEnded     bool `gorm:"default:false"`
 
 	// fk
 	CreatorID uint
