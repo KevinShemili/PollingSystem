@@ -12,15 +12,22 @@ import (
 )
 
 type PollController struct {
-	CreatePollCommand contracts.ICreatePollCommand
-	AddVoteCommand    contracts.IAddVoteCommand
+	CreatePollCommand  contracts.ICreatePollCommand
+	AddVoteCommand     contracts.IAddVoteCommand
+	DeletePollCommmand contracts.IDeletePollCommand
+	EndPollCommand     contracts.IEndPollCommand
 }
 
-func NewPollController(CreatePollCommand contracts.ICreatePollCommand,
-	AddVoteCommand contracts.IAddVoteCommand) *PollController {
+func NewPollController(
+	CreatePollCommand contracts.ICreatePollCommand,
+	AddVoteCommand contracts.IAddVoteCommand,
+	DeletePollCommand contracts.IDeletePollCommand,
+	EndPollCommand contracts.IEndPollCommand) *PollController {
 	return &PollController{
-		CreatePollCommand: CreatePollCommand,
-		AddVoteCommand:    AddVoteCommand}
+		CreatePollCommand:  CreatePollCommand,
+		AddVoteCommand:     AddVoteCommand,
+		DeletePollCommmand: DeletePollCommand,
+		EndPollCommand:     EndPollCommand}
 }
 
 // CreatePoll handles poll creation.
@@ -75,7 +82,7 @@ func (uc *PollController) CreatePoll(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Poll ID"
 // @Param request body requests.AddVoteRequest true "Add Vote Request"
-// @Success 200 {object} results.AddVoteResult "Vote added successfully"
+// @Success 200 {object} bool "Vote added successfully"
 // @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
 // @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
 // @Failure 404 {object} utility.ErrorCode "Poll or category not found"
@@ -110,6 +117,74 @@ func (uc *PollController) AddVote(c *gin.Context) {
 	}
 
 	result, err := uc.AddVoteCommand.AddVote(&request, user)
+
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+// DeletePoll handles deleting a specific poll.
+//
+// @Summary Delete a poll
+// @Description Delete a poll by providing the poll ID in the route. The user must be authenticated.
+// @Tags Polls
+// @Accept json
+// @Produce json
+// @Param id path int true "Poll ID"
+// @Success 200 {object} bool "Poll deleted successfully"
+// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
+// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
+// @Failure 404 {object} utility.ErrorCode "Poll not found"
+// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Router /polls/{id} [delete]
+// @Security BearerAuth
+func (uc *PollController) DeletePoll(c *gin.Context) {
+
+	pollIDString := c.Param("id")
+	pollID, errParse := strconv.ParseUint(pollIDString, 10, 32)
+	if errParse != nil {
+		c.JSON(utility.RouteParameterCast.StatusCode, utility.RouteParameterCast)
+		return
+	}
+
+	result, err := uc.DeletePollCommmand.DeletePoll(uint(pollID))
+
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+// EndPoll handles ending a specific poll.
+//
+// @Summary End a poll
+// @Description End a poll by providing the poll ID in the route. The user must be authenticated.
+// @Tags Polls
+// @Accept json
+// @Produce json
+// @Param id path int true "Poll ID"
+// @Success 200 {object} bool "Poll ended successfully"
+// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
+// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
+// @Failure 404 {object} utility.ErrorCode "Poll not found"
+// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Router /polls/{id}/end [put]
+// @Security BearerAuth
+func (uc *PollController) EndPoll(c *gin.Context) {
+
+	pollIDString := c.Param("id")
+	pollID, errParse := strconv.ParseUint(pollIDString, 10, 32)
+	if errParse != nil {
+		c.JSON(utility.RouteParameterCast.StatusCode, utility.RouteParameterCast)
+		return
+	}
+
+	result, err := uc.EndPollCommand.EndPoll(uint(pollID))
 
 	if err != nil {
 		c.JSON(err.StatusCode, err)

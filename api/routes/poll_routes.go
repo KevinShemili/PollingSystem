@@ -14,5 +14,7 @@ func PollRoutes(r *gin.Engine, controller *controllers.PollController, UnitOfWor
 	{
 		auth.POST("", middleware.AuthenticationMiddleware(UnitOfWork), controller.CreatePoll)
 		auth.POST("/:id/vote", middleware.AuthenticationMiddleware(UnitOfWork), controller.AddVote)
+		auth.DELETE("/:id", middleware.AuthenticationMiddleware(UnitOfWork), controller.DeletePoll)
+		auth.PUT("/:id/end", middleware.AuthenticationMiddleware(UnitOfWork), controller.EndPoll)
 	}
 }

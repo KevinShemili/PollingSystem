@@ -106,4 +106,9 @@ var (
 		"Invalid route parameter format",
 		http.StatusBadRequest,
 	)
+
+	AlreadyEnded = NewErrorCode(
+		"Cannot perform operations on an ended poll.",
+		http.StatusBadRequest,
+	)
 )

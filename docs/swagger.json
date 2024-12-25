@@ -267,6 +267,128 @@
                 }
             }
         },
+        "/polls/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a poll by providing the poll ID in the route. The user must be authenticated.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Polls"
+                ],
+                "summary": "Delete a poll",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Poll ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poll deleted successfully",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "404": {
+                        "description": "Poll not found",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            }
+        },
+        "/polls/{id}/end": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "End a poll by providing the poll ID in the route. The user must be authenticated.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Polls"
+                ],
+                "summary": "End a poll",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Poll ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poll ended successfully",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "404": {
+                        "description": "Poll not found",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            }
+        },
         "/polls/{id}/vote": {
             "post": {
                 "security": [
@@ -307,7 +429,7 @@
                     "200": {
                         "description": "Vote added successfully",
                         "schema": {
-                            "$ref": "#/definitions/results.AddVoteResult"
+                            "type": "boolean"
                         }
                     },
                     "400": {
@@ -404,9 +526,6 @@
                     "type": "string"
                 }
             }
-        },
-        "results.AddVoteResult": {
-            "type": "object"
         },
         "results.CreatePollResult": {
             "type": "object",

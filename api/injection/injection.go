@@ -33,10 +33,12 @@ func BuildContainer() *AppContainer {
 	LogOutCommand := authCommands.NewLogOutCommand(UnitOfWork)
 	CreatePollCommand := pollCommands.NewCreatePollCommand(UnitOfWork)
 	AddVoteCommand := pollCommands.NewAddVoteCommand(UnitOfWork)
+	DeletePollCommand := pollCommands.NewDeletePollCommand(UnitOfWork)
+	EndPollCommand := pollCommands.NewEndPollCommand(UnitOfWork)
 
 	// controllers
 	AuthenticationController := controllers.NewAuthenticationController(RegisterCommand, LoginCommand, RefreshCommand, LogOutCommand)
-	PollController := controllers.NewPollController(CreatePollCommand, AddVoteCommand)
+	PollController := controllers.NewPollController(CreatePollCommand, AddVoteCommand, DeletePollCommand, EndPollCommand)
 
 	return &AppContainer{
 		UnitOfWork: UnitOfWork,

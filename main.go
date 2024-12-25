@@ -39,8 +39,6 @@ func main() {
 	routes.AuthenticationRoutes(r, container.AuthenticationController, container.UnitOfWork)
 	routes.PollRoutes(r, container.PollController, container.UnitOfWork)
 
-	// -------------------------------------------------------------------------------------
-
 	// WEBSOCKET
 	r.GET("/ws", func(c *gin.Context) {
 
