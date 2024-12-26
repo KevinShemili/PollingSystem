@@ -42,6 +42,23 @@ definitions:
       refresh_token:
         type: string
     type: object
+  requests.UpdatePollRequest:
+    properties:
+      delete_categories:
+        items:
+          type: integer
+        type: array
+      description:
+        type: string
+      expires_at:
+        type: string
+      new_categories:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+    type: object
   results.CreatePollResult:
     properties:
       categories:
@@ -52,6 +69,28 @@ definitions:
         type: string
       isEnded:
         type: boolean
+      title:
+        type: string
+    type: object
+  results.GetPollResult:
+    properties:
+      categories:
+        items:
+          properties:
+            categoryID:
+              type: integer
+            categoryName:
+              type: string
+            votes:
+              type: integer
+          type: object
+        type: array
+      description:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: integer
       title:
         type: string
     type: object
@@ -76,6 +115,21 @@ definitions:
       message:
         type: string
       status_code:
+        type: integer
+    type: object
+  utility.PaginatedResponse-results_GetPollResult:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/results.GetPollResult'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_count:
+        type: integer
+      total_pages:
         type: integer
     type: object
 host: localhost:8080
@@ -216,6 +270,37 @@ paths:
       tags:
       - Authentication
   /polls:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a paginated list of polls.
+      parameters:
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 10)
+        in: query
+        name: page_size
+        type: integer
+      - description: Filter text (partial match against title or description)
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of polls
+          schema:
+            $ref: '#/definitions/utility.PaginatedResponse-results_GetPollResult'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      summary: Get polls with pagination and optional filter
+      tags:
+      - Polls
     post:
       consumes:
       - application/json
@@ -292,8 +377,87 @@ paths:
       summary: Delete a poll
       tags:
       - Polls
-  /polls/{id}/end:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific poll by its ID. Requires authentication.
+      parameters:
+      - description: Poll ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poll data
+          schema:
+            $ref: '#/definitions/results.GetPollResult'
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "404":
+          description: Poll not found
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      security:
+      - BearerAuth: []
+      summary: Get a specific poll
+      tags:
+      - Polls
     put:
+      consumes:
+      - application/json
+      description: Updates the specified poll's details, including title, expiration
+        date, and categories.
+      parameters:
+      - description: Poll ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Poll update details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdatePollRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poll updated successfully
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "401":
+          description: Unauthorized - Invalid or missing authentication
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      security:
+      - BearerAuth: []
+      summary: Update a poll's details
+      tags:
+      - Polls
+  /polls/{id}/end:
+    patch:
       consumes:
       - application/json
       description: End a poll by providing the poll ID in the route. The user must
@@ -376,6 +540,57 @@ paths:
       security:
       - BearerAuth: []
       summary: Vote on a poll
+      tags:
+      - Polls
+  /polls/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves polls for the given user ID. Requires authentication.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 10)
+        in: query
+        name: page_size
+        type: integer
+      - description: Filter text (partial match)
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user's polls
+          schema:
+            $ref: '#/definitions/utility.PaginatedResponse-results_GetPollResult'
+        "400":
+          description: Bad Request - Invalid user ID
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utility.ErrorCode'
+      security:
+      - BearerAuth: []
+      summary: Get polls created by a specific user, with pagination/filter
       tags:
       - Polls
 securityDefinitions:

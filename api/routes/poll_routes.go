@@ -10,11 +10,15 @@ import (
 
 func PollRoutes(r *gin.Engine, controller *controllers.PollController, UnitOfWork contracts.IUnitOfWork) {
 
-	auth := r.Group("/polls")
+	poll := r.Group("/polls")
 	{
-		auth.POST("", middleware.AuthenticationMiddleware(UnitOfWork), controller.CreatePoll)
-		auth.POST("/:id/vote", middleware.AuthenticationMiddleware(UnitOfWork), controller.AddVote)
-		auth.DELETE("/:id", middleware.AuthenticationMiddleware(UnitOfWork), controller.DeletePoll)
-		auth.PUT("/:id/end", middleware.AuthenticationMiddleware(UnitOfWork), controller.EndPoll)
+		poll.POST("", middleware.AuthenticationMiddleware(UnitOfWork), controller.CreatePoll)
+		poll.POST("/:id/vote", middleware.AuthenticationMiddleware(UnitOfWork), controller.AddVote)
+		poll.DELETE("/:id", middleware.AuthenticationMiddleware(UnitOfWork), controller.DeletePoll)
+		poll.PATCH("/:id/end", middleware.AuthenticationMiddleware(UnitOfWork), controller.EndPoll)
+		poll.GET("", controller.GetPolls)
+		poll.GET("/:id", middleware.AuthenticationMiddleware(UnitOfWork), controller.GetPoll)
+		poll.GET("/users/:id", middleware.AuthenticationMiddleware(UnitOfWork), controller.GetUserPolls)
+		poll.PUT("/:id", middleware.AuthenticationMiddleware(UnitOfWork), controller.UpdatePoll)
 	}
 }

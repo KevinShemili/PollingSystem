@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"gin/application/repository/contracts"
+	"gin/application/utility"
 	"gin/domain/entities"
 	"time"
 
@@ -62,4 +63,21 @@ func (r *PollRepository) GetExpiredPolls(currentTime time.Time) ([]*entities.Pol
 	}
 
 	return polls, nil
+}
+
+func (r *PollRepository) GetPollsPaginated(parameters utility.QueryParams) (utility.PaginatedResponse[entities.Poll], error) {
+
+	db := r.db.Model(&entities.Poll{}).
+		Preload("Categories.Votes")
+
+	return utility.PaginateAndFilter[entities.Poll](db, parameters)
+}
+
+func (r *PollRepository) GetPollsByUserPaginated(userID uint, parameters utility.QueryParams) (utility.PaginatedResponse[entities.Poll], error) {
+
+	db := r.db.Model(&entities.Poll{}).
+		Preload("Categories.Votes").
+		Where("user_id = ?", userID)
+
+	return utility.PaginateAndFilter[entities.Poll](db, parameters)
 }

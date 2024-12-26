@@ -6,6 +6,7 @@ import (
 	"gin/application/repository/contracts"
 	authCommands "gin/application/usecase/authentication/commands"
 	pollCommands "gin/application/usecase/poll/commands"
+	pollQueries "gin/application/usecase/poll/queries"
 	"gin/infrastructure/database"
 )
 
@@ -35,10 +36,15 @@ func BuildContainer() *AppContainer {
 	AddVoteCommand := pollCommands.NewAddVoteCommand(UnitOfWork)
 	DeletePollCommand := pollCommands.NewDeletePollCommand(UnitOfWork)
 	EndPollCommand := pollCommands.NewEndPollCommand(UnitOfWork)
+	UpdatePollCommand := pollCommands.NewUpdatePollCommand(UnitOfWork)
+	GetPollQuery := pollQueries.NewGetPollQuery(UnitOfWork)
+	GetPollsQuery := pollQueries.NewGetPollsQuery(UnitOfWork)
+	GetUserPollsQuery := pollQueries.NewGetUserPollsQuery(UnitOfWork)
 
 	// controllers
 	AuthenticationController := controllers.NewAuthenticationController(RegisterCommand, LoginCommand, RefreshCommand, LogOutCommand)
-	PollController := controllers.NewPollController(CreatePollCommand, AddVoteCommand, DeletePollCommand, EndPollCommand)
+	PollController := controllers.NewPollController(CreatePollCommand, AddVoteCommand, DeletePollCommand, EndPollCommand, GetPollQuery,
+		GetPollsQuery, GetUserPollsQuery, UpdatePollCommand)
 
 	return &AppContainer{
 		UnitOfWork: UnitOfWork,

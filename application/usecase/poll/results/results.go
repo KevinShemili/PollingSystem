@@ -15,3 +15,15 @@ type UpdatePollResult struct {
 	ExpiresAt   time.Time
 	Categories  []string
 }
+
+type GetPollResult struct {
+	ID          uint
+	Title       string
+	Description string
+	ExpiresAt   time.Time
+	Categories  []struct {
+		CategoryID   uint
+		CategoryName string
+		Votes        int
+	}
+}

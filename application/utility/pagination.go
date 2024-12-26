@@ -29,7 +29,7 @@ func ApplyFilter(db *gorm.DB, params QueryParams) *gorm.DB {
 	return db
 }
 
-func ApplyPagination(db *gorm.DB, params QueryParams) *gorm.DB {
+func ApplyPagination(db *gorm.DB, params *QueryParams) *gorm.DB {
 
 	if params.Page < 1 {
 		params.Page = 1
@@ -55,7 +55,7 @@ func PaginateAndFilter[T any](db *gorm.DB, params QueryParams) (PaginatedRespons
 		return result, err
 	}
 
-	query = ApplyPagination(query, params)
+	query = ApplyPagination(query, &params)
 
 	if err := query.Find(&data).Error; err != nil {
 		return result, err

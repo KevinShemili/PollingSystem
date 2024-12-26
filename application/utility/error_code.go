@@ -111,4 +111,9 @@ var (
 		"Cannot perform operations on an ended poll.",
 		http.StatusBadRequest,
 	)
+
+	NotPollOwner = NewErrorCode(
+		"Only the poll owner can perform this operation.",
+		http.StatusBadRequest,
+	)
 )

@@ -217,6 +217,53 @@ const docTemplate = `{
             }
         },
         "/polls": {
+            "get": {
+                "description": "Retrieves a paginated list of polls.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Polls"
+                ],
+                "summary": "Get polls with pagination and optional filter",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 10)",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter text (partial match against title or description)",
+                        "name": "filter",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of polls",
+                        "schema": {
+                            "$ref": "#/definitions/utility.PaginatedResponse-results_GetPollResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -273,7 +320,207 @@ const docTemplate = `{
                 }
             }
         },
+        "/polls/users/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves polls for the given user ID. Requires authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Polls"
+                ],
+                "summary": "Get polls created by a specific user, with pagination/filter",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 10)",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter text (partial match)",
+                        "name": "filter",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of user's polls",
+                        "schema": {
+                            "$ref": "#/definitions/utility.PaginatedResponse-results_GetPollResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid user ID",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            }
+        },
         "/polls/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a specific poll by its ID. Requires authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Polls"
+                ],
+                "summary": "Get a specific poll",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Poll ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poll data",
+                        "schema": {
+                            "$ref": "#/definitions/results.GetPollResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "404": {
+                        "description": "Poll not found",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates the specified poll's details, including title, expiration date, and categories.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Polls"
+                ],
+                "summary": "Update a poll's details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Poll ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Poll update details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.UpdatePollRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poll updated successfully",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utility.ErrorCode"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -335,7 +582,7 @@ const docTemplate = `{
             }
         },
         "/polls/{id}/end": {
-            "put": {
+            "patch": {
                 "security": [
                     {
                         "BearerAuth": []
@@ -533,6 +780,32 @@ const docTemplate = `{
                 }
             }
         },
+        "requests.UpdatePollRequest": {
+            "type": "object",
+            "properties": {
+                "delete_categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "new_categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "results.CreatePollResult": {
             "type": "object",
             "properties": {
@@ -547,6 +820,40 @@ const docTemplate = `{
                 },
                 "isEnded": {
                     "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "results.GetPollResult": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "categoryID": {
+                                "type": "integer"
+                            },
+                            "categoryName": {
+                                "type": "string"
+                            },
+                            "votes": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"
@@ -585,6 +892,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status_code": {
+                    "type": "integer"
+                }
+            }
+        },
+        "utility.PaginatedResponse-results_GetPollResult": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/results.GetPollResult"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_count": {
+                    "type": "integer"
+                },
+                "total_pages": {
                     "type": "integer"
                 }
             }

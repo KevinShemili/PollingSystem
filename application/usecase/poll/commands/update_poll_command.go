@@ -4,7 +4,6 @@ import (
 	"gin/api/requests"
 	repo "gin/application/repository/contracts"
 	"gin/application/usecase/poll/commands/contracts"
-	"gin/application/usecase/poll/results"
 	"gin/application/utility"
 	"gin/domain/entities"
 	"time"
@@ -18,26 +17,31 @@ func NewUpdatePollCommand(UnitOfWork repo.IUnitOfWork) contracts.IUpdatePollComm
 	return &UpdatePollCommand{UnitOfWork: UnitOfWork}
 }
 
-func (r UpdatePollCommand) UpdatePoll(request *requests.UpdatePollRequest) (*results.UpdatePollResult, *utility.ErrorCode) {
+func (r UpdatePollCommand) UpdatePoll(userID uint, request *requests.UpdatePollRequest) (bool, *utility.ErrorCode) {
 
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
-		return nil, utility.InternalServerError.WithDescription(err.Error())
+		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 	defer uof.Rollback()
 
 	// check if poll exists
 	poll, err := r.UnitOfWork.IPollRepository().GetPollWithCategories(request.PollID)
 	if err != nil {
-		return nil, utility.InternalServerError.WithDescription(err.Error())
+		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 	if poll == nil {
-		return nil, utility.InvalidPollID
+		return false, utility.InvalidPollID
 	}
 
 	// check if ended
 	if poll.IsEnded {
-		return nil, utility.AlreadyEnded
+		return false, utility.AlreadyEnded
+	}
+
+	// check if user is the owner
+	if poll.CreatorID != userID {
+		return false, utility.NotPollOwner
 	}
 
 	// update
@@ -45,7 +49,7 @@ func (r UpdatePollCommand) UpdatePoll(request *requests.UpdatePollRequest) (*res
 	poll.Description = request.Description
 	expiresAt, err := time.Parse(time.RFC3339, request.ExpiresAt)
 	if err != nil {
-		return nil, utility.InternalServerError.WithDescription(err.Error())
+		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 	poll.ExpiresAt = expiresAt
 
@@ -54,13 +58,13 @@ func (r UpdatePollCommand) UpdatePoll(request *requests.UpdatePollRequest) (*res
 
 		for _, categoryID := range request.DeleteCategories {
 			if !contains(&poll.Categories, categoryID) {
-				return nil, utility.InvalidCategoryID
+				return false, utility.InvalidCategoryID
 			}
 		}
 
 		for _, categoryID := range request.DeleteCategories {
 			if err := r.UnitOfWork.IPollCategoryRepository().SoftDelete(categoryID); err != nil {
-				return nil, utility.InternalServerError.WithDescription(err.Error())
+				return false, utility.InternalServerError.WithDescription(err.Error())
 			}
 		}
 	}
@@ -74,21 +78,21 @@ func (r UpdatePollCommand) UpdatePoll(request *requests.UpdatePollRequest) (*res
 			}
 
 			if err := r.UnitOfWork.IPollCategoryRepository().Create(&newCategory); err != nil {
-				return nil, utility.InternalServerError.WithDescription(err.Error())
+				return false, utility.InternalServerError.WithDescription(err.Error())
 			}
 		}
 	}
 
 	if err := r.UnitOfWork.IPollRepository().Update(poll); err != nil {
-		return nil, utility.InternalServerError.WithDescription(err.Error())
+		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 
 	// commit to db
 	if err := uof.Commit(); err != nil {
-		return nil, utility.InternalServerError.WithDescription(err.Error())
+		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 
-	return nil, nil
+	return true, nil
 }
 
 func contains(s *[]entities.PollCategory, id uint) bool {
