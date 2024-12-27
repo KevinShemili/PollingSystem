@@ -249,6 +249,7 @@ func (uc *PollController) GetPoll(c *gin.Context) {
 // @Param page query int false "Page number (default 1)"
 // @Param page_size query int false "Items per page (default 10)"
 // @Param filter query string false "Filter text (partial match against title or description)"
+// @Param show_active_only query bool false "Show only active polls (default false)"
 // @Success 200 {object} utility.PaginatedResponse[results.GetPollResult] "List of polls"
 // @Failure 500 {object} utility.ErrorCode "Internal server error"
 // @Router /polls [get]
@@ -258,13 +259,22 @@ func (uc *PollController) GetPolls(c *gin.Context) {
 	pageSize, _ := strconv.Atoi(c.Query("page_size"))
 	filter := c.Query("filter")
 
-	params := utility.QueryParams{
-		Page:     page,
-		PageSize: pageSize,
-		Filter:   filter,
+	showActiveOnlyStr := c.Query("show_active_only")
+	showActiveOnly, parseError := strconv.ParseBool(showActiveOnlyStr)
+	if parseError != nil {
+		c.JSON(utility.QueryParameterCast.StatusCode, utility.QueryParameterCast)
 	}
 
-	result, err := uc.GetPollsQuery.GetPolls(params)
+	request := requests.GetPollsRequest{
+		QueryParams: utility.QueryParams{
+			Page:     page,
+			PageSize: pageSize,
+			Filter:   filter,
+		},
+		ShowActiveOnly: showActiveOnly,
+	}
+
+	result, err := uc.GetPollsQuery.GetPolls(&request)
 
 	if err != nil {
 		c.JSON(err.StatusCode, err)
@@ -284,6 +294,7 @@ func (uc *PollController) GetPolls(c *gin.Context) {
 // @Param page query int false "Page number (default 1)"
 // @Param page_size query int false "Items per page (default 10)"
 // @Param filter query string false "Filter text (partial match)"
+// @Param show_active_only query bool false "Show only active polls (default false)"
 // @Success 200 {object} utility.PaginatedResponse[results.GetPollResult] "List of user's polls"
 // @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid user ID"
 // @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
@@ -297,10 +308,19 @@ func (uc *PollController) GetUserPolls(c *gin.Context) {
 	pageSize, _ := strconv.Atoi(c.Query("page_size"))
 	filter := c.Query("filter")
 
-	params := utility.QueryParams{
-		Page:     page,
-		PageSize: pageSize,
-		Filter:   filter,
+	showActiveOnlyStr := c.Query("show_active_only")
+	showActiveOnly, parseError := strconv.ParseBool(showActiveOnlyStr)
+	if parseError != nil {
+		c.JSON(utility.QueryParameterCast.StatusCode, utility.QueryParameterCast)
+	}
+
+	request := requests.GetPollsRequest{
+		QueryParams: utility.QueryParams{
+			Page:     page,
+			PageSize: pageSize,
+			Filter:   filter,
+		},
+		ShowActiveOnly: showActiveOnly,
 	}
 
 	userAny, ok := c.Get("user")
@@ -313,7 +333,7 @@ func (uc *PollController) GetUserPolls(c *gin.Context) {
 		c.JSON(utility.InternalServerError.StatusCode, utility.InternalServerError)
 	}
 
-	result, err := uc.GetUserPollsQuery.GetPolls(user.ID, params)
+	result, err := uc.GetUserPollsQuery.GetPolls(user.ID, &request)
 
 	if err != nil {
 		c.JSON(err.StatusCode, err)

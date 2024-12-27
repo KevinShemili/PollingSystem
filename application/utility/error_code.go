@@ -107,6 +107,11 @@ var (
 		http.StatusBadRequest,
 	)
 
+	QueryParameterCast = NewErrorCode(
+		"Invalid query parameter format",
+		http.StatusBadRequest,
+	)
+
 	AlreadyEnded = NewErrorCode(
 		"Cannot perform operations on an ended poll.",
 		http.StatusBadRequest,

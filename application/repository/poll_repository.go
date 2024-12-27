@@ -65,19 +65,20 @@ func (r *PollRepository) GetExpiredPolls(currentTime time.Time) ([]*entities.Pol
 	return polls, nil
 }
 
-func (r *PollRepository) GetPollsPaginated(parameters utility.QueryParams) (utility.PaginatedResponse[entities.Poll], error) {
+func (r *PollRepository) GetPollsPaginated(parameters utility.QueryParams, showActiveOnly bool) (utility.PaginatedResponse[entities.Poll], error) {
 
 	db := r.db.Model(&entities.Poll{}).
-		Preload("Categories.Votes")
+		Preload("Categories.Votes").
+		Where("is_ended = ?", !showActiveOnly)
 
 	return utility.PaginateAndFilter[entities.Poll](db, parameters)
 }
 
-func (r *PollRepository) GetPollsByUserPaginated(userID uint, parameters utility.QueryParams) (utility.PaginatedResponse[entities.Poll], error) {
+func (r *PollRepository) GetPollsByUserPaginated(userID uint, parameters utility.QueryParams, showActiveOnly bool) (utility.PaginatedResponse[entities.Poll], error) {
 
 	db := r.db.Model(&entities.Poll{}).
 		Preload("Categories.Votes").
-		Where("user_id = ?", userID)
+		Where("user_id = ? AND is_ended = ?", userID, !showActiveOnly)
 
 	return utility.PaginateAndFilter[entities.Poll](db, parameters)
 }

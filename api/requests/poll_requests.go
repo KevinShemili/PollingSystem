@@ -1,5 +1,7 @@
 package requests
 
+import "gin/application/utility"
+
 type CreatePollRequest struct {
 	Title      string   `json:"title"`
 	ExpiresAt  string   `json:"expires_at"`
@@ -18,4 +20,10 @@ type UpdatePollRequest struct {
 	Description      string   `json:"description"`
 	DeleteCategories []uint   `json:"delete_categories"`
 	NewCategories    []string `json:"new_categories"`
+}
+
+type GetPollsRequest struct {
+	utility.QueryParams
+
+	ShowActiveOnly bool `json:"show_active_only"`
 }

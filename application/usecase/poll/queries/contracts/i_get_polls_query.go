@@ -1,10 +1,11 @@
 package contracts
 
 import (
+	"gin/api/requests"
 	"gin/application/usecase/poll/results"
 	"gin/application/utility"
 )
 
 type IGetPollsQuery interface {
-	GetPolls(parameters utility.QueryParams) (utility.PaginatedResponse[results.GetPollResult], *utility.ErrorCode)
+	GetPolls(request *requests.GetPollsRequest) (utility.PaginatedResponse[results.GetPollResult], *utility.ErrorCode)
 }
