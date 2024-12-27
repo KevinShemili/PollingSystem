@@ -53,7 +53,11 @@ func (r *PollRepository) GetPollWithCategories(pollID uint) (*entities.Poll, err
 func (r *PollRepository) GetExpiredPolls(currentTime time.Time) ([]*entities.Poll, error) {
 	var polls []*entities.Poll
 
-	err := r.db.Where("is_ended = ? AND expires_at < ?", false, currentTime).Find(&polls).Error
+	err := r.db.
+		Where("is_ended = ? AND expires_at < ?", false, currentTime).
+		Preload("Creator").
+		Preload("Categories.Votes").
+		Find(&polls).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

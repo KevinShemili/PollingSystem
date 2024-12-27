@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/auth/login": {
             "post": {
-                "description": "Authenticate a user with email and password, returning a JWT token.",
+                "description": "Login a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -41,25 +41,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Authentication token and refresh token",
+                        "description": "JWT Token \u0026 Refresh Token",
                         "schema": {
                             "$ref": "#/definitions/results.LoginResult"
                         }
                     },
                     "400": {
-                        "description": "Binding failure",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Invalid credentials",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -87,9 +81,10 @@ const docTemplate = `{
                 "summary": "Log out a user",
                 "parameters": [
                     {
-                        "description": "LogOut Request (optional)",
+                        "description": "LogOut Request",
                         "name": "request",
                         "in": "body",
+                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/requests.LogOutRequest"
                         }
@@ -102,14 +97,14 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
+                    "400": {
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -119,7 +114,7 @@ const docTemplate = `{
         },
         "/auth/refresh": {
             "post": {
-                "description": "Refresh access and refresh tokens using the provided tokens.",
+                "description": "Generates a new JWT token and refresh token using the refresh token provided",
                 "consumes": [
                     "application/json"
                 ],
@@ -143,25 +138,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "New access and refresh tokens",
+                        "description": "JWT \u0026 Refresh Token",
                         "schema": {
                             "$ref": "#/definitions/results.RefreshResult"
                         }
                     },
                     "400": {
-                        "description": "Binding failure",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -171,7 +160,7 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
-                "description": "This endpoint registers a new user with the provided details.",
+                "description": "Register a new user",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,18 +186,17 @@ const docTemplate = `{
                     "200": {
                         "description": "success: true",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "boolean"
                         }
                     },
                     "400": {
-                        "description": "Binding failure or validation errors",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -246,6 +234,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Filter text (partial match against title or description)",
                         "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Show only active polls (default false)",
+                        "name": "show_active_only",
                         "in": "query"
                     }
                 ],
@@ -362,6 +356,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Filter text (partial match)",
                         "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Show only active polls (default false)",
+                        "name": "show_active_only",
                         "in": "query"
                     }
                 ],
@@ -716,6 +716,9 @@ const docTemplate = `{
     "definitions": {
         "requests.AddVoteRequest": {
             "type": "object",
+            "required": [
+                "poll_category_id"
+            ],
             "properties": {
                 "poll_category_id": {
                     "type": "integer"
@@ -724,6 +727,11 @@ const docTemplate = `{
         },
         "requests.CreatePollRequest": {
             "type": "object",
+            "required": [
+                "categories",
+                "expires_at",
+                "title"
+            ],
             "properties": {
                 "categories": {
                     "type": "array",
@@ -741,6 +749,9 @@ const docTemplate = `{
         },
         "requests.LogOutRequest": {
             "type": "object",
+            "required": [
+                "user_id"
+            ],
             "properties": {
                 "user_id": {
                     "type": "integer"
@@ -749,6 +760,10 @@ const docTemplate = `{
         },
         "requests.LoginRequest": {
             "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -760,8 +775,22 @@ const docTemplate = `{
         },
         "requests.RegisterRequest": {
             "type": "object",
+            "required": [
+                "email",
+                "first_name",
+                "password"
+            ],
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
                 "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
                     "type": "string"
                 },
                 "password": {
@@ -771,6 +800,10 @@ const docTemplate = `{
         },
         "requests.TokensRequest": {
             "type": "object",
+            "required": [
+                "jwt_token",
+                "refresh_token"
+            ],
             "properties": {
                 "jwt_token": {
                     "type": "string"
@@ -782,6 +815,11 @@ const docTemplate = `{
         },
         "requests.UpdatePollRequest": {
             "type": "object",
+            "required": [
+                "description",
+                "expires_at",
+                "title"
+            ],
             "properties": {
                 "delete_categories": {
                     "type": "array",

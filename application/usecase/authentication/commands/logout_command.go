@@ -20,21 +20,28 @@ func NewLogOutCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate
 
 func (r LogOutCommand) LogOut(request *requests.LogOutRequest) (bool, *utility.ErrorCode) {
 
+	// validate request
 	if err := r.Validator.Struct(request); err != nil {
 		return false, utility.ValidationError.WithDescription(err.Error())
 	}
 
+	// begin transaction
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 	defer uof.Rollback()
 
+	// get refresh token
 	refreshToken, err := r.UnitOfWork.IRefreshTokenRepository().GetByUserID(uint(request.UserID))
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
+	if refreshToken == nil {
+		return false, utility.Unauthorized
+	}
 
+	// delete refresh token
 	if err := uof.IRefreshTokenRepository().SoftDelete(refreshToken.ID); err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}

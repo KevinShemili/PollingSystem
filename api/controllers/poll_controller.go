@@ -163,7 +163,17 @@ func (uc *PollController) DeletePoll(c *gin.Context) {
 		return
 	}
 
-	result, err := uc.DeletePollCommmand.DeletePoll(uint(pollID))
+	userAny, ok := c.Get("user")
+	if !ok {
+		c.JSON(utility.Unauthorized.StatusCode, utility.Unauthorized)
+	}
+
+	user, ok := userAny.(*entities.User)
+	if !ok {
+		c.JSON(utility.InternalServerError.StatusCode, utility.InternalServerError)
+	}
+
+	result, err := uc.DeletePollCommmand.DeletePoll(uint(pollID), user)
 
 	if err != nil {
 		c.JSON(err.StatusCode, err)
@@ -197,7 +207,17 @@ func (uc *PollController) EndPoll(c *gin.Context) {
 		return
 	}
 
-	result, err := uc.EndPollCommand.EndPoll(uint(pollID))
+	userAny, ok := c.Get("user")
+	if !ok {
+		c.JSON(utility.Unauthorized.StatusCode, utility.Unauthorized)
+	}
+
+	user, ok := userAny.(*entities.User)
+	if !ok {
+		c.JSON(utility.InternalServerError.StatusCode, utility.InternalServerError)
+	}
+
+	result, err := uc.EndPollCommand.EndPoll(uint(pollID), user)
 
 	if err != nil {
 		c.JSON(err.StatusCode, err)

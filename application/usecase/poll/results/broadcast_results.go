@@ -34,3 +34,10 @@ type BroadcastExpiry struct {
 		PollID uint `json:"poll_id"`
 	} `json:"data"`
 }
+
+type BroadcastDeletion struct {
+	BroadcastType string `json:"type"`
+	Data          struct {
+		PollID uint `json:"poll_id"`
+	} `json:"data"`
+}

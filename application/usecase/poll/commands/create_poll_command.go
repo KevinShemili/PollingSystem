@@ -8,7 +8,9 @@ import (
 	"gin/application/usecase/poll/results"
 	"gin/application/utility"
 	"gin/domain/entities"
+	"gin/infrastructure/mail"
 	"gin/infrastructure/websocket"
+	"log"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -87,6 +89,22 @@ func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user 
 
 	message, _ := json.Marshal(broadcastData)
 	websocket.BroadcastMessage(string(message))
+
+	go func() {
+		if err := mail.SendEmail(
+			user.Email,
+			"Poll Created",
+			"../../../infrastructure/mail/templates/poll_template.html",
+			map[string]interface{}{
+				"Title":      pollEntity.Title,
+				"ExpiresAt":  pollEntity.ExpiresAt.Format("January 2, 2006 at 3:04 PM"),
+				"Categories": request.Categories,
+			},
+		); err != nil {
+			log.Printf("Failed to send email. %v", err)
+
+		}
+	}()
 
 	return &results.CreatePollResult{
 		Title:      pollEntity.Title,

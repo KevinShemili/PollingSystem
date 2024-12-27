@@ -53,7 +53,7 @@ func HandleBroadcast() {
 		for client := range clients {
 			err := client.WriteMessage(websocket.TextMessage, []byte(msg))
 			if err != nil {
-				fmt.Printf("Error writing message: %v. Deregistering client.\n", err)
+				fmt.Printf("Error writing message: %v. Deregistering client.", err)
 				client.Close()
 				delete(clients, client)
 			}

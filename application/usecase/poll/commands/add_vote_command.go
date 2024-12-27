@@ -8,7 +8,9 @@ import (
 	"gin/application/usecase/poll/results"
 	"gin/application/utility"
 	"gin/domain/entities"
+	"gin/infrastructure/mail"
 	"gin/infrastructure/websocket"
+	"log"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -102,6 +104,21 @@ func (r AddVoteCommand) AddVote(request *requests.AddVoteRequest, user *entities
 
 	message, _ := json.Marshal(broadcastData)
 	websocket.BroadcastMessage(string(message))
+
+	go func() {
+		if err := mail.SendEmail(
+			user.Email,
+			"Vote Casted",
+			"../../../infrastructure/mail/templates/vote_template.html",
+			map[string]string{
+				"PollTitle":    updatedPoll.Title,
+				"CategoryName": updatedPoll.Categories[request.PollCategoryID].Name,
+			},
+		); err != nil {
+			log.Printf("Failed to send email. %v", err)
+
+		}
+	}()
 
 	return true, nil
 }

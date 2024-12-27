@@ -1,9 +1,13 @@
 package commands
 
 import (
+	"encoding/json"
 	repo "gin/application/repository/contracts"
 	"gin/application/usecase/poll/commands/contracts"
+	"gin/application/usecase/poll/results"
 	"gin/application/utility"
+	"gin/domain/entities"
+	"gin/infrastructure/websocket"
 )
 
 type DeletePollCommand struct {
@@ -14,7 +18,7 @@ func NewDeletePollCommand(UnitOfWork repo.IUnitOfWork) contracts.IDeletePollComm
 	return &DeletePollCommand{UnitOfWork: UnitOfWork}
 }
 
-func (r DeletePollCommand) DeletePoll(pollID uint) (bool, *utility.ErrorCode) {
+func (r DeletePollCommand) DeletePoll(pollID uint, user *entities.User) (bool, *utility.ErrorCode) {
 
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
@@ -31,6 +35,11 @@ func (r DeletePollCommand) DeletePoll(pollID uint) (bool, *utility.ErrorCode) {
 		return false, utility.InvalidPollID
 	}
 
+	// check if user is the creator
+	if poll.CreatorID != user.ID {
+		return false, utility.NotPollOwner
+	}
+
 	// delete poll
 	if err := r.UnitOfWork.IPollRepository().SoftDelete(pollID); err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
@@ -40,6 +49,13 @@ func (r DeletePollCommand) DeletePoll(pollID uint) (bool, *utility.ErrorCode) {
 	if err := uof.Commit(); err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
+
+	var broadcastData results.BroadcastDeletion
+	broadcastData.BroadcastType = "poll-deleted"
+	broadcastData.Data.PollID = pollID
+
+	message, _ := json.Marshal(broadcastData)
+	websocket.BroadcastMessage(string(message))
 
 	return true, nil
 }

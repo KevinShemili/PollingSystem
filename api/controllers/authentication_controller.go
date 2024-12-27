@@ -27,17 +27,16 @@ func NewAuthenticationController(RegisterCommand contracts.IRegisterCommand,
 		LogOutCommand:   LogOutCommand}
 }
 
-// Register handles user registration.
-//
+// Register godoc
 // @Summary Register a new user
-// @Description This endpoint registers a new user with the provided details.
+// @Description Register a new user
 // @Tags Authentication
 // @Accept json
 // @Produce json
 // @Param request body requests.RegisterRequest true "User Registration Request"
-// @Success 200 {object} map[string]interface{} "success: true"
-// @Failure 400 {object} utility.ErrorCode "Binding failure or validation errors"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Success 200 {object} bool "success: true"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /auth/register [post]
 func (uc *AuthenticationController) Register(c *gin.Context) {
 
@@ -58,18 +57,16 @@ func (uc *AuthenticationController) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// Login handles user login.
-//
+// Login godoc
 // @Summary Login a user
-// @Description Authenticate a user with email and password, returning a JWT token.
+// @Description Login a user
 // @Tags Authentication
 // @Accept json
 // @Produce json
 // @Param request body requests.LoginRequest true "Login Request"
-// @Success 200 {object} results.LoginResult "Authentication token and refresh token"
-// @Failure 400 {object} utility.ErrorCode "Binding failure"
-// @Failure 401 {object} utility.ErrorCode "Invalid credentials"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Success 200 {object} results.LoginResult "JWT Token & Refresh Token"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /auth/login [post]
 func (uc *AuthenticationController) Login(c *gin.Context) {
 
@@ -90,18 +87,16 @@ func (uc *AuthenticationController) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// Refresh handles token refreshing.
-//
+// Refresh godoc
 // @Summary Refresh user tokens
-// @Description Refresh access and refresh tokens using the provided tokens.
+// @Description Generates a new JWT token and refresh token using the refresh token provided
 // @Tags Authentication
 // @Accept json
 // @Produce json
 // @Param request body requests.TokensRequest true "Token Refresh Request"
-// @Success 200 {object} results.RefreshResult "New access and refresh tokens"
-// @Failure 400 {object} utility.ErrorCode "Binding failure"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Success 200 {object} results.RefreshResult "JWT & Refresh Token"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /auth/refresh [post]
 func (uc *AuthenticationController) Refresh(c *gin.Context) {
 
@@ -122,17 +117,16 @@ func (uc *AuthenticationController) Refresh(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// LogOut handles user logout.
-//
+// LogOut godoc
 // @Summary Log out a user
 // @Description Ends the user session by invalidating the token (requires JWT).
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param request body requests.LogOutRequest false "LogOut Request (optional)"
-// @Success 200 {string} string "Successfully logged out"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Param request body requests.LogOutRequest true "LogOut Request"
+// @Success 200 {object} bool "Successfully logged out"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /auth/logout [post]
 // @Security BearerAuth
 func (uc *AuthenticationController) LogOut(c *gin.Context) {
@@ -150,6 +144,8 @@ func (uc *AuthenticationController) LogOut(c *gin.Context) {
 		c.JSON(err.StatusCode, err)
 		return
 	}
+
+	c.Set("user", nil)
 
 	c.JSON(http.StatusOK, result)
 }

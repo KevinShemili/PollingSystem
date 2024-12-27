@@ -23,10 +23,12 @@ func NewLoginCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate)
 
 func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResult, *utility.ErrorCode) {
 
+	// validate request
 	if err := r.Validator.Struct(request); err != nil {
 		return nil, utility.ValidationError.WithDescription(err.Error())
 	}
 
+	// begin transaction
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
@@ -58,7 +60,6 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
-
 	if oldRefresh != nil {
 		if err := r.UnitOfWork.IRefreshTokenRepository().SoftDelete(oldRefresh.ID); err != nil {
 			return nil, utility.InternalServerError.WithDescription(err.Error())
@@ -71,6 +72,7 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
 
+	// create refresh token
 	if err := r.UnitOfWork.IRefreshTokenRepository().Create(&entities.RefreshToken{
 		Token:    refreshToken,
 		Expiry:   expiry,

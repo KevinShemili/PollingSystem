@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote Cast</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <h1>Thank You for Voting!</h1>
+        <p>
+            You have successfully cast your vote in the poll titled "<strong>{{.PollTitle}}</strong>".
+        </p>
+        <p>
+            Your vote was registered for the category: <strong>{{.CategoryName}}</strong>.
+        </p>
+        <div class="footer">
+            <p>Thank you for using our platform,</p>
+            <p>The Poll System Team</p>
+        </div>
+    </div>
+</body>
+
+</html>

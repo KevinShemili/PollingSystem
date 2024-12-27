@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"gin/application/repository/contracts"
 	"gin/application/usecase/poll/results"
+	"gin/infrastructure/mail"
 	"gin/infrastructure/websocket"
+	"log"
 	"time"
 )
 
 func EndExpiredPolls(UnitOfWork contracts.IUnitOfWork) error {
+
 	polls, err := UnitOfWork.IPollRepository().GetExpiredPolls(time.Now())
 	if err != nil {
 		return err
@@ -35,12 +38,40 @@ func EndExpiredPolls(UnitOfWork contracts.IUnitOfWork) error {
 	}
 
 	for _, endedPoll := range polls {
-		var broadcastData results.BroadcastVote
+		var broadcastData results.BroadcastExpiry
 		broadcastData.BroadcastType = "poll-ended"
 		broadcastData.Data.PollID = endedPoll.ID
 
 		message, _ := json.Marshal(broadcastData)
 		websocket.BroadcastMessage(string(message))
 	}
+
+	go func() {
+
+		for _, poll := range polls {
+
+			results := []map[string]interface{}{}
+
+			for _, category := range poll.Categories {
+				results = append(results, map[string]interface{}{
+					"CategoryName": category.Name,
+					"Votes":        len(category.Votes),
+				})
+			}
+
+			if err := mail.SendEmail(
+				poll.Creator.Email,
+				"Poll Has Ended",
+				"../../../infrastructure/mail/templates/expired_poll_template.html",
+				map[string]interface{}{
+					"PollTitle": poll.Title,
+					"Results":   results,
+				},
+			); err != nil {
+				log.Printf("Failed to send email. %v", err)
+			}
+		}
+	}()
+
 	return nil
 }

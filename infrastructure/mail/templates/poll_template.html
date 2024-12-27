@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poll Created</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
+        ul {
+            padding: 0;
+            list-style: none;
+        }
+
+        ul li {
+            background: #f9f9f9;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <h1>New Poll Created</h1>
+        <p>
+            A new poll titled "<strong>{{.Title}}</strong>" has been successfully created.
+            This poll will expire on <strong>{{.ExpiresAt}}</strong>.
+        </p>
+        <p>It contains the following categories:</p>
+        <ul>
+            {{range .Categories}}
+            <li>{{.}}</li>
+            {{end}}
+        </ul>
+        <p>
+            You can now share this poll or monitor its results in real time.
+        </p>
+        <div class="footer">
+            <p>Thank you for using our platform,</p>
+            <p>The Poll System Team</p>
+        </div>
+    </div>
+</body>
+
+</html>
