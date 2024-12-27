@@ -9,17 +9,24 @@ import (
 	"gin/application/utility"
 	"gin/domain/entities"
 	"gin/infrastructure/websocket"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type AddVoteCommand struct {
 	UnitOfWork repo.IUnitOfWork
+	Validator  *validator.Validate
 }
 
-func NewAddVoteCommand(UnitOfWork repo.IUnitOfWork) contracts.IAddVoteCommand {
-	return &AddVoteCommand{UnitOfWork: UnitOfWork}
+func NewAddVoteCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate) contracts.IAddVoteCommand {
+	return &AddVoteCommand{UnitOfWork: UnitOfWork, Validator: Validator}
 }
 
 func (r AddVoteCommand) AddVote(request *requests.AddVoteRequest, user *entities.User) (bool, *utility.ErrorCode) {
+
+	if err := r.Validator.Struct(request); err != nil {
+		return false, utility.ValidationError.WithDescription(err.Error())
+	}
 
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {

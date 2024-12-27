@@ -7,17 +7,24 @@ import (
 	"gin/application/utility"
 	"gin/domain/entities"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type UpdatePollCommand struct {
 	UnitOfWork repo.IUnitOfWork
+	Validator  *validator.Validate
 }
 
-func NewUpdatePollCommand(UnitOfWork repo.IUnitOfWork) contracts.IUpdatePollCommand {
-	return &UpdatePollCommand{UnitOfWork: UnitOfWork}
+func NewUpdatePollCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate) contracts.IUpdatePollCommand {
+	return &UpdatePollCommand{UnitOfWork: UnitOfWork, Validator: Validator}
 }
 
 func (r UpdatePollCommand) UpdatePoll(userID uint, request *requests.UpdatePollRequest) (bool, *utility.ErrorCode) {
+
+	if err := r.Validator.Struct(request); err != nil {
+		return false, utility.ValidationError.WithDescription(err.Error())
+	}
 
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {

@@ -8,6 +8,8 @@ import (
 	pollCommands "gin/application/usecase/poll/commands"
 	pollQueries "gin/application/usecase/poll/queries"
 	"gin/infrastructure/database"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type AppContainer struct {
@@ -27,19 +29,21 @@ func BuildContainer() *AppContainer {
 	// unit of work - repositories inside
 	UnitOfWork := repository.NewUnitOfWork(dbContext)
 
+	validate := validator.New()
+
 	// handlers
-	RegisterCommand := authCommands.NewRegisterCommand(UnitOfWork)
-	LoginCommand := authCommands.NewLoginCommand(UnitOfWork)
-	RefreshCommand := authCommands.NewRefreshCommand(UnitOfWork)
-	LogOutCommand := authCommands.NewLogOutCommand(UnitOfWork)
-	CreatePollCommand := pollCommands.NewCreatePollCommand(UnitOfWork)
-	AddVoteCommand := pollCommands.NewAddVoteCommand(UnitOfWork)
+	RegisterCommand := authCommands.NewRegisterCommand(UnitOfWork, validate)
+	LoginCommand := authCommands.NewLoginCommand(UnitOfWork, validate)
+	RefreshCommand := authCommands.NewRefreshCommand(UnitOfWork, validate)
+	LogOutCommand := authCommands.NewLogOutCommand(UnitOfWork, validate)
+	CreatePollCommand := pollCommands.NewCreatePollCommand(UnitOfWork, validate)
+	AddVoteCommand := pollCommands.NewAddVoteCommand(UnitOfWork, validate)
 	DeletePollCommand := pollCommands.NewDeletePollCommand(UnitOfWork)
 	EndPollCommand := pollCommands.NewEndPollCommand(UnitOfWork)
-	UpdatePollCommand := pollCommands.NewUpdatePollCommand(UnitOfWork)
+	UpdatePollCommand := pollCommands.NewUpdatePollCommand(UnitOfWork, validate)
 	GetPollQuery := pollQueries.NewGetPollQuery(UnitOfWork)
-	GetPollsQuery := pollQueries.NewGetPollsQuery(UnitOfWork)
-	GetUserPollsQuery := pollQueries.NewGetUserPollsQuery(UnitOfWork)
+	GetPollsQuery := pollQueries.NewGetPollsQuery(UnitOfWork, validate)
+	GetUserPollsQuery := pollQueries.NewGetUserPollsQuery(UnitOfWork, validate)
 
 	// controllers
 	AuthenticationController := controllers.NewAuthenticationController(RegisterCommand, LoginCommand, RefreshCommand, LogOutCommand)

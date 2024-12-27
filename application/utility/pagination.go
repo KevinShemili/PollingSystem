@@ -7,9 +7,9 @@ import (
 )
 
 type QueryParams struct {
-	Page     int
-	PageSize int
-	Filter   string
+	Page     int    `validate:"omitempty"`
+	PageSize int    `validate:"omitempty"`
+	Filter   string `validate:"omitempty"`
 }
 
 type PaginatedResponse[T any] struct {

@@ -11,18 +11,24 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type RefreshCommand struct {
 	UnitOfWork repo.IUnitOfWork
+	Validator  *validator.Validate
 }
 
-func NewRefreshCommand(UnitOfWork repo.IUnitOfWork) contracts.IRefreshCommand {
-	return &RefreshCommand{UnitOfWork: UnitOfWork}
+func NewRefreshCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate) contracts.IRefreshCommand {
+	return &RefreshCommand{UnitOfWork: UnitOfWork, Validator: Validator}
 }
 
 func (r RefreshCommand) Refresh(request *requests.TokensRequest) (*results.RefreshResult, *utility.ErrorCode) {
+
+	if err := r.Validator.Struct(request); err != nil {
+		return nil, utility.ValidationError.WithDescription(err.Error())
+	}
 
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {

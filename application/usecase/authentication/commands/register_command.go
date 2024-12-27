@@ -7,18 +7,24 @@ import (
 	"gin/application/utility"
 	"gin/domain/entities"
 
+	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterCommand struct {
 	UnitOfWork repo.IUnitOfWork
+	Validator  *validator.Validate
 }
 
-func NewRegisterCommand(UnitOfWork repo.IUnitOfWork) contracts.IRegisterCommand {
-	return &RegisterCommand{UnitOfWork: UnitOfWork}
+func NewRegisterCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate) contracts.IRegisterCommand {
+	return &RegisterCommand{UnitOfWork: UnitOfWork, Validator: Validator}
 }
 
 func (r RegisterCommand) Register(request *requests.RegisterRequest) (bool, *utility.ErrorCode) {
+
+	if err := r.Validator.Struct(request); err != nil {
+		return false, utility.ValidationError.WithDescription(err.Error())
+	}
 
 	duplicate, err := r.UnitOfWork.IUserRepository().GetByEmail(request.Email)
 	if err != nil {

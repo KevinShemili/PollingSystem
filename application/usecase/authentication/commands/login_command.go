@@ -8,18 +8,24 @@ import (
 	"gin/application/utility"
 	"gin/domain/entities"
 
+	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginCommand struct {
 	UnitOfWork repo.IUnitOfWork
+	Validator  *validator.Validate
 }
 
-func NewLoginCommand(UnitOfWork repo.IUnitOfWork) contracts.ILoginCommand {
-	return &LoginCommand{UnitOfWork: UnitOfWork}
+func NewLoginCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate) contracts.ILoginCommand {
+	return &LoginCommand{UnitOfWork: UnitOfWork, Validator: Validator}
 }
 
 func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResult, *utility.ErrorCode) {
+
+	if err := r.Validator.Struct(request); err != nil {
+		return nil, utility.ValidationError.WithDescription(err.Error())
+	}
 
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {

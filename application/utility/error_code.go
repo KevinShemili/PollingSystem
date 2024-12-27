@@ -121,4 +121,9 @@ var (
 		"Only the poll owner can perform this operation.",
 		http.StatusBadRequest,
 	)
+
+	ValidationError = NewErrorCode(
+		"Validation Error.",
+		http.StatusBadRequest,
+	)
 )

@@ -10,17 +10,24 @@ import (
 	"gin/domain/entities"
 	"gin/infrastructure/websocket"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type CreatePollCommand struct {
 	UnitOfWork repo.IUnitOfWork
+	Validator  *validator.Validate
 }
 
-func NewCreatePollCommand(UnitOfWork repo.IUnitOfWork) contracts.ICreatePollCommand {
-	return &CreatePollCommand{UnitOfWork: UnitOfWork}
+func NewCreatePollCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate) contracts.ICreatePollCommand {
+	return &CreatePollCommand{UnitOfWork: UnitOfWork, Validator: Validator}
 }
 
 func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user *entities.User) (*results.CreatePollResult, *utility.ErrorCode) {
+
+	if err := r.Validator.Struct(request); err != nil {
+		return nil, utility.ValidationError.WithDescription(err.Error())
+	}
 
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {

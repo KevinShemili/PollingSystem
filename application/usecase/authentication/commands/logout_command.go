@@ -5,17 +5,24 @@ import (
 	repo "gin/application/repository/contracts"
 	"gin/application/usecase/authentication/commands/contracts"
 	"gin/application/utility"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type LogOutCommand struct {
 	UnitOfWork repo.IUnitOfWork
+	Validator  *validator.Validate
 }
 
-func NewLogOutCommand(UnitOfWork repo.IUnitOfWork) contracts.ILogOutCommand {
-	return &LogOutCommand{UnitOfWork: UnitOfWork}
+func NewLogOutCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate) contracts.ILogOutCommand {
+	return &LogOutCommand{UnitOfWork: UnitOfWork, Validator: Validator}
 }
 
 func (r LogOutCommand) LogOut(request *requests.LogOutRequest) (bool, *utility.ErrorCode) {
+
+	if err := r.Validator.Struct(request); err != nil {
+		return false, utility.ValidationError.WithDescription(err.Error())
+	}
 
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
