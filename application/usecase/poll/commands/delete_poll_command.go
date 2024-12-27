@@ -20,6 +20,7 @@ func NewDeletePollCommand(UnitOfWork repo.IUnitOfWork) contracts.IDeletePollComm
 
 func (r DeletePollCommand) DeletePoll(pollID uint, user *entities.User) (bool, *utility.ErrorCode) {
 
+	// begin transaction
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
@@ -50,6 +51,7 @@ func (r DeletePollCommand) DeletePoll(pollID uint, user *entities.User) (bool, *
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 
+	// broadcast poll deletion
 	var broadcastData results.BroadcastDeletion
 	broadcastData.BroadcastType = "poll-deleted"
 	broadcastData.Data.PollID = pollID

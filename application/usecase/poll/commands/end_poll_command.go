@@ -22,6 +22,7 @@ func NewEndPollCommand(UnitOfWork repo.IUnitOfWork) contracts.IEndPollCommand {
 
 func (r EndPollCommand) EndPoll(pollID uint, user *entities.User) (bool, *utility.ErrorCode) {
 
+	// begin transaction
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
@@ -58,6 +59,7 @@ func (r EndPollCommand) EndPoll(pollID uint, user *entities.User) (bool, *utilit
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 
+	// broadcast poll ended
 	var broadcastData results.BroadcastExpiry
 	broadcastData.BroadcastType = "poll-ended"
 	broadcastData.Data.PollID = pollID
@@ -65,6 +67,7 @@ func (r EndPollCommand) EndPoll(pollID uint, user *entities.User) (bool, *utilit
 	message, _ := json.Marshal(broadcastData)
 	websocket.BroadcastMessage(string(message))
 
+	// send email
 	go func() {
 
 		results := []map[string]interface{}{}
@@ -79,7 +82,7 @@ func (r EndPollCommand) EndPoll(pollID uint, user *entities.User) (bool, *utilit
 		if err := mail.SendEmail(
 			user.Email,
 			"Poll Has Ended",
-			"../../../infrastructure/mail/templates/expired_poll_template.html",
+			mail.GetTemplatePath("expired_poll_template.html"),
 			map[string]interface{}{
 				"PollTitle": poll.Title,
 				"Results":   results,
@@ -87,7 +90,6 @@ func (r EndPollCommand) EndPoll(pollID uint, user *entities.User) (bool, *utilit
 		); err != nil {
 			log.Printf("Failed to send email. %v", err)
 		}
-
 	}()
 
 	return true, nil

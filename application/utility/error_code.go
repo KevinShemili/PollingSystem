@@ -126,4 +126,8 @@ var (
 		"Validation Error.",
 		http.StatusBadRequest,
 	)
+	DateShouldBeFuture = NewErrorCode(
+		"Date should be in the future.",
+		http.StatusBadRequest,
+	)
 )

@@ -16,20 +16,26 @@ type GetUserPollsQuery struct {
 }
 
 func NewGetUserPollsQuery(UnitOfWork repo.IUnitOfWork, Validator *validator.Validate) contracts.IGetUserPollsQuery {
-	return &GetUserPollsQuery{UnitOfWork: UnitOfWork}
+	return &GetUserPollsQuery{UnitOfWork: UnitOfWork, Validator: Validator}
 }
 
 func (r GetUserPollsQuery) GetPolls(userID uint, request *requests.GetPollsRequest) (utility.PaginatedResponse[results.GetPollResult], *utility.ErrorCode) {
 
+	// validate request
 	if err := r.Validator.Struct(request); err != nil {
 		return utility.PaginatedResponse[results.GetPollResult]{}, utility.ValidationError.WithDescription(err.Error())
 	}
 
+	// get polls
 	polls, err := r.UnitOfWork.IPollRepository().GetPollsByUserPaginated(userID, request.QueryParams, request.ShowActiveOnly)
 	if err != nil {
 		return utility.PaginatedResponse[results.GetPollResult]{}, utility.InternalServerError.WithDescription(err.Error())
 	}
+	if len(polls.Data) == 0 {
+		return utility.PaginatedResponse[results.GetPollResult]{}, nil
+	}
 
+	// map results
 	results := utility.MapPoll(polls)
 
 	return results, nil

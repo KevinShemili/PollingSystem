@@ -25,5 +25,5 @@ type UpdatePollRequest struct {
 type GetPollsRequest struct {
 	utility.QueryParams
 
-	ShowActiveOnly bool `json:"show_active_only" validate:"required"`
+	ShowActiveOnly bool `json:"show_active_only" validate:"omitempty"`
 }

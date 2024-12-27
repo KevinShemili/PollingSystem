@@ -27,10 +27,12 @@ func NewCreatePollCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Vali
 
 func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user *entities.User) (*results.CreatePollResult, *utility.ErrorCode) {
 
+	// validate request
 	if err := r.Validator.Struct(request); err != nil {
 		return nil, utility.ValidationError.WithDescription(err.Error())
 	}
 
+	// begin transaction
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
@@ -42,9 +44,13 @@ func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user 
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
+	// check if expiry date is in the past
+	if expiresAt.Before(time.Now()) {
+		return nil, utility.DateShouldBeFuture
+	}
 
+	// create poll entity
 	var categories []entities.PollCategory
-
 	for _, catName := range request.Categories {
 		categories = append(categories, entities.PollCategory{
 			Name: catName,
@@ -68,6 +74,7 @@ func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user 
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
 
+	// broadcast new poll
 	var broadcastData results.BroadcastPoll
 	broadcastData.BroadcastType = "new-poll"
 	broadcastData.Data.PollID = pollEntity.ID
@@ -90,11 +97,12 @@ func (r CreatePollCommand) CreatePoll(request *requests.CreatePollRequest, user 
 	message, _ := json.Marshal(broadcastData)
 	websocket.BroadcastMessage(string(message))
 
+	// send email
 	go func() {
 		if err := mail.SendEmail(
 			user.Email,
 			"Poll Created",
-			"../../../infrastructure/mail/templates/poll_template.html",
+			mail.GetTemplatePath("poll_template.html"),
 			map[string]interface{}{
 				"Title":      pollEntity.Title,
 				"ExpiresAt":  pollEntity.ExpiresAt.Format("January 2, 2006 at 3:04 PM"),

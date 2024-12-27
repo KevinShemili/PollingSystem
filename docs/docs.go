@@ -94,7 +94,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully logged out",
                         "schema": {
-                            "type": "string"
+                            "type": "boolean"
                         }
                     },
                     "400": {
@@ -206,7 +206,7 @@ const docTemplate = `{
         },
         "/polls": {
             "get": {
-                "description": "Retrieves a paginated list of polls.",
+                "description": "Retrieves a paginated list of polls and specifies whether to show only active polls. The filter parameter is used to search for polls by title or description.",
                 "consumes": [
                     "application/json"
                 ],
@@ -264,7 +264,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new poll with a title, expiration time, and categories. The user must be authenticated.",
+                "description": "Create a new poll in the system.",
                 "consumes": [
                     "application/json"
                 ],
@@ -294,19 +294,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -321,7 +315,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieves polls for the given user ID. Requires authentication.",
+                "description": "Retrieves polls created by a specific user, with pagination and optional filter. The filter parameter is used to search for polls by title or description. The show_active_only parameter is used to show only active polls.",
                 "consumes": [
                     "application/json"
                 ],
@@ -373,25 +367,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid user ID",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "404": {
-                        "description": "User not found",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -406,7 +388,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieve a specific poll by its ID. Requires authentication.",
+                "description": "Retrieve a specific poll by its ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -434,25 +416,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "404": {
-                        "description": "Poll not found",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -502,19 +472,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing authentication",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -527,7 +491,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Delete a poll by providing the poll ID in the route. The user must be authenticated.",
+                "description": "Soft-Delete a poll by providing the poll ID in the route. You need to be the poll owner to delete it.",
                 "consumes": [
                     "application/json"
                 ],
@@ -555,25 +519,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "404": {
-                        "description": "Poll not found",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -588,7 +540,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "End a poll by providing the poll ID in the route. The user must be authenticated.",
+                "description": "Mark the poll ended by providing the poll ID in the route. In order to end a poll, you need to be the poll owner.",
                 "consumes": [
                     "application/json"
                 ],
@@ -616,25 +568,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "404": {
-                        "description": "Poll not found",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -649,7 +589,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Add a vote to a specific poll category by providing the poll ID in the route and the category ID in the request body. The user must be authenticated.",
+                "description": "Cast a vote to a specific poll category by providing the poll ID in the route and the category ID in the request body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -680,31 +620,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Vote added successfully",
+                        "description": "Vote cast successful",
                         "schema": {
                             "type": "boolean"
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
-                        "schema": {
-                            "$ref": "#/definitions/utility.ErrorCode"
-                        }
-                    },
-                    "404": {
-                        "description": "Poll or category not found",
+                        "description": "4xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "5xx Errors",
                         "schema": {
                             "$ref": "#/definitions/utility.ErrorCode"
                         }
@@ -892,6 +820,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isEnded": {
+                    "type": "boolean"
                 },
                 "title": {
                     "type": "string"

@@ -43,18 +43,16 @@ func NewPollController(
 		UpdatePollCommand:  UpdatePollCommand}
 }
 
-// CreatePoll handles poll creation.
-//
+// CreatePoll godoc
 // @Summary Create a new poll
-// @Description Create a new poll with a title, expiration time, and categories. The user must be authenticated.
+// @Description Create a new poll in the system.
 // @Tags Polls
 // @Accept json
 // @Produce json
 // @Param request body requests.CreatePollRequest true "Create Poll Request"
 // @Success 200 {object} results.CreatePollResult "Poll created successfully"
-// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /polls [post]
 // @Security BearerAuth
 func (uc *PollController) CreatePoll(c *gin.Context) {
@@ -86,20 +84,17 @@ func (uc *PollController) CreatePoll(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// AddVote handles voting on a specific poll.
-//
+// AddVote godoc
 // @Summary Vote on a poll
-// @Description Add a vote to a specific poll category by providing the poll ID in the route and the category ID in the request body. The user must be authenticated.
+// @Description Cast a vote to a specific poll category by providing the poll ID in the route and the category ID in the request body.
 // @Tags Polls
 // @Accept json
 // @Produce json
 // @Param id path int true "Poll ID"
 // @Param request body requests.AddVoteRequest true "Add Vote Request"
-// @Success 200 {object} bool "Vote added successfully"
-// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
-// @Failure 404 {object} utility.ErrorCode "Poll or category not found"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Success 200 {object} bool "Vote cast successful"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /polls/{id}/vote [post]
 // @Security BearerAuth
 func (uc *PollController) AddVote(c *gin.Context) {
@@ -139,19 +134,16 @@ func (uc *PollController) AddVote(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// DeletePoll handles deleting a specific poll.
-//
+// DeletePoll godoc
 // @Summary Delete a poll
-// @Description Delete a poll by providing the poll ID in the route. The user must be authenticated.
+// @Description Soft-Delete a poll by providing the poll ID in the route. You need to be the poll owner to delete it.
 // @Tags Polls
 // @Accept json
 // @Produce json
 // @Param id path int true "Poll ID"
 // @Success 200 {object} bool "Poll deleted successfully"
-// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
-// @Failure 404 {object} utility.ErrorCode "Poll not found"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /polls/{id} [delete]
 // @Security BearerAuth
 func (uc *PollController) DeletePoll(c *gin.Context) {
@@ -183,19 +175,16 @@ func (uc *PollController) DeletePoll(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// EndPoll handles ending a specific poll.
-//
+// EndPoll godoc
 // @Summary End a poll
-// @Description End a poll by providing the poll ID in the route. The user must be authenticated.
+// @Description Mark the poll ended by providing the poll ID in the route. In order to end a poll, you need to be the poll owner.
 // @Tags Polls
 // @Accept json
 // @Produce json
 // @Param id path int true "Poll ID"
 // @Success 200 {object} bool "Poll ended successfully"
-// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
-// @Failure 404 {object} utility.ErrorCode "Poll not found"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /polls/{id}/end [patch]
 // @Security BearerAuth
 func (uc *PollController) EndPoll(c *gin.Context) {
@@ -229,16 +218,14 @@ func (uc *PollController) EndPoll(c *gin.Context) {
 
 // GetPoll godoc
 // @Summary Get a specific poll
-// @Description Retrieve a specific poll by its ID. Requires authentication.
+// @Description Retrieve a specific poll by its ID.
 // @Tags Polls
 // @Accept json
 // @Produce json
 // @Param id path int true "Poll ID"
 // @Success 200 {object} results.GetPollResult "Poll data"
-// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
-// @Failure 404 {object} utility.ErrorCode "Poll not found"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /polls/{id} [get]
 // @Security BearerAuth
 func (uc *PollController) GetPoll(c *gin.Context) {
@@ -262,7 +249,7 @@ func (uc *PollController) GetPoll(c *gin.Context) {
 
 // GetPolls godoc
 // @Summary Get polls with pagination and optional filter
-// @Description Retrieves a paginated list of polls.
+// @Description Retrieves a paginated list of polls and specifies whether to show only active polls. The filter parameter is used to search for polls by title or description.
 // @Tags Polls
 // @Accept json
 // @Produce json
@@ -306,7 +293,7 @@ func (uc *PollController) GetPolls(c *gin.Context) {
 
 // GetUserPolls godoc
 // @Summary Get polls created by a specific user, with pagination/filter
-// @Description Retrieves polls for the given user ID. Requires authentication.
+// @Description Retrieves polls created by a specific user, with pagination and optional filter. The filter parameter is used to search for polls by title or description. The show_active_only parameter is used to show only active polls.
 // @Tags Polls
 // @Accept json
 // @Produce json
@@ -316,10 +303,8 @@ func (uc *PollController) GetPolls(c *gin.Context) {
 // @Param filter query string false "Filter text (partial match)"
 // @Param show_active_only query bool false "Show only active polls (default false)"
 // @Success 200 {object} utility.PaginatedResponse[results.GetPollResult] "List of user's polls"
-// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid user ID"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing token"
-// @Failure 404 {object} utility.ErrorCode "User not found"
-// @Failure 500 {object} utility.ErrorCode "Internal server error"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /polls/users/{id} [get]
 // @Security BearerAuth
 func (uc *PollController) GetUserPolls(c *gin.Context) {
@@ -372,9 +357,8 @@ func (uc *PollController) GetUserPolls(c *gin.Context) {
 // @Param id path int true "Poll ID"
 // @Param body body requests.UpdatePollRequest true "Poll update details"
 // @Success 200 {object} bool "Poll updated successfully"
-// @Failure 400 {object} utility.ErrorCode "Bad Request - Invalid input"
-// @Failure 401 {object} utility.ErrorCode "Unauthorized - Invalid or missing authentication"
-// @Failure 500 {object} utility.ErrorCode "Internal Server Error"
+// @Failure 400 {object} utility.ErrorCode "4xx Errors"
+// @Failure 500 {object} utility.ErrorCode "5xx Errors"
 // @Router /polls/{id} [put]
 // @Security BearerAuth
 func (uc *PollController) UpdatePoll(c *gin.Context) {

@@ -1,11 +1,14 @@
 package commands
 
 import (
+	"encoding/json"
 	"gin/api/requests"
 	repo "gin/application/repository/contracts"
 	"gin/application/usecase/poll/commands/contracts"
+	"gin/application/usecase/poll/results"
 	"gin/application/utility"
 	"gin/domain/entities"
+	"gin/infrastructure/websocket"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -22,10 +25,12 @@ func NewUpdatePollCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Vali
 
 func (r UpdatePollCommand) UpdatePoll(userID uint, request *requests.UpdatePollRequest) (bool, *utility.ErrorCode) {
 
+	// validate request
 	if err := r.Validator.Struct(request); err != nil {
 		return false, utility.ValidationError.WithDescription(err.Error())
 	}
 
+	// begin transaction
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
@@ -51,12 +56,16 @@ func (r UpdatePollCommand) UpdatePoll(userID uint, request *requests.UpdatePollR
 		return false, utility.NotPollOwner
 	}
 
-	// update
+	// update poll
 	poll.Title = request.Title
 	poll.Description = request.Description
 	expiresAt, err := time.Parse(time.RFC3339, request.ExpiresAt)
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
+	}
+	// check if expiry date is in the past
+	if expiresAt.Before(time.Now()) {
+		return false, utility.DateShouldBeFuture
 	}
 	poll.ExpiresAt = expiresAt
 
@@ -98,6 +107,34 @@ func (r UpdatePollCommand) UpdatePoll(userID uint, request *requests.UpdatePollR
 	if err := uof.Commit(); err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
+
+	updatedPoll, err := r.UnitOfWork.IPollRepository().GetPollWithVotes(poll.ID)
+	if err != nil {
+		return false, utility.InternalServerError.WithDescription(err.Error())
+	}
+
+	// broadcast update
+	var broadcastData results.BroadcastPoll
+	broadcastData.BroadcastType = "update-poll"
+	broadcastData.Data.PollID = updatedPoll.ID
+	broadcastData.Data.Title = updatedPoll.Title
+	broadcastData.Data.ExpiresAt = updatedPoll.ExpiresAt
+	broadcastData.Data.Ended = updatedPoll.IsEnded
+
+	for _, category := range updatedPoll.Categories {
+		broadcastData.Data.Categories = append(broadcastData.Data.Categories, struct {
+			ID    uint   `json:"category_id"`
+			Name  string `json:"category_name"`
+			Votes int    `json:"category_votes"`
+		}{
+			ID:    category.ID,
+			Name:  category.Name,
+			Votes: len(category.Votes),
+		})
+	}
+
+	message, _ := json.Marshal(broadcastData)
+	websocket.BroadcastMessage(string(message))
 
 	return true, nil
 }

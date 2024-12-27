@@ -44,12 +44,14 @@ func MapPoll(src PaginatedResponse[entities.Poll]) PaginatedResponse[results.Get
 				}
 				return catList
 			}(),
+			IsEnded: poll.IsEnded,
 		})
 	}
 
 	return mappedResults
 }
 
+// map entities.Poll -> results.GetPollResult
 func MapSinglePoll(src *entities.Poll) *results.GetPollResult {
 
 	mappedResult := results.GetPollResult{
@@ -81,6 +83,7 @@ func MapSinglePoll(src *entities.Poll) *results.GetPollResult {
 			}
 			return catList
 		}(),
+		IsEnded: src.IsEnded,
 	}
 
 	return &mappedResult

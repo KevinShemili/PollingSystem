@@ -13,11 +13,16 @@ import (
 
 func EndExpiredPolls(UnitOfWork contracts.IUnitOfWork) error {
 
+	// get expired polls
 	polls, err := UnitOfWork.IPollRepository().GetExpiredPolls(time.Now())
 	if err != nil {
 		return err
 	}
+	if len(polls) == 0 {
+		return nil
+	}
 
+	// begin transaction
 	uof, err := UnitOfWork.Begin()
 	if err != nil {
 		return err
@@ -33,10 +38,12 @@ func EndExpiredPolls(UnitOfWork contracts.IUnitOfWork) error {
 
 	}
 
+	// commit to db
 	if err := uof.Commit(); err != nil {
 		return err
 	}
 
+	// broadcast poll expiry
 	for _, endedPoll := range polls {
 		var broadcastData results.BroadcastExpiry
 		broadcastData.BroadcastType = "poll-ended"
@@ -46,6 +53,7 @@ func EndExpiredPolls(UnitOfWork contracts.IUnitOfWork) error {
 		websocket.BroadcastMessage(string(message))
 	}
 
+	// send email
 	go func() {
 
 		for _, poll := range polls {
@@ -62,7 +70,7 @@ func EndExpiredPolls(UnitOfWork contracts.IUnitOfWork) error {
 			if err := mail.SendEmail(
 				poll.Creator.Email,
 				"Poll Has Ended",
-				"../../../infrastructure/mail/templates/expired_poll_template.html",
+				mail.GetTemplatePath("expired_poll_template.html"),
 				map[string]interface{}{
 					"PollTitle": poll.Title,
 					"Results":   results,

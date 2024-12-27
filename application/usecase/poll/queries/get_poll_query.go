@@ -17,11 +17,16 @@ func NewGetPollQuery(UnitOfWork repo.IUnitOfWork) contracts.IGetPollQuery {
 
 func (r GetPollQuery) GetPoll(pollID uint) (*results.GetPollResult, *utility.ErrorCode) {
 
+	// get poll
 	poll, err := r.UnitOfWork.IPollRepository().GetPollWithVotes(pollID)
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())
 	}
+	if poll == nil {
+		return nil, utility.InvalidPollID
+	}
 
+	// map result
 	result := utility.MapSinglePoll(poll)
 
 	return result, nil

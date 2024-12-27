@@ -26,4 +26,5 @@ type GetPollResult struct {
 		CategoryName string
 		Votes        int
 	}
+	IsEnded bool
 }

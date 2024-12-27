@@ -119,6 +119,8 @@ definitions:
         type: string
       id:
         type: integer
+      isEnded:
+        type: boolean
       title:
         type: string
     type: object
@@ -215,7 +217,7 @@ paths:
         "200":
           description: Successfully logged out
           schema:
-            type: string
+            type: boolean
         "400":
           description: 4xx Errors
           schema:
@@ -294,7 +296,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieves a paginated list of polls.
+      description: Retrieves a paginated list of polls and specifies whether to show
+        only active polls. The filter parameter is used to search for polls by title
+        or description.
       parameters:
       - description: Page number (default 1)
         in: query
@@ -329,8 +333,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new poll with a title, expiration time, and categories.
-        The user must be authenticated.
+      description: Create a new poll in the system.
       parameters:
       - description: Create Poll Request
         in: body
@@ -346,15 +349,11 @@ paths:
           schema:
             $ref: '#/definitions/results.CreatePollResult'
         "400":
-          description: Bad Request - Invalid input
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "401":
-          description: Unauthorized - Invalid or missing token
+          description: 4xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
         "500":
-          description: Internal server error
+          description: 5xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
       security:
@@ -366,8 +365,8 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete a poll by providing the poll ID in the route. The user must
-        be authenticated.
+      description: Soft-Delete a poll by providing the poll ID in the route. You need
+        to be the poll owner to delete it.
       parameters:
       - description: Poll ID
         in: path
@@ -382,19 +381,11 @@ paths:
           schema:
             type: boolean
         "400":
-          description: Bad Request - Invalid input
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "401":
-          description: Unauthorized - Invalid or missing token
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "404":
-          description: Poll not found
+          description: 4xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
         "500":
-          description: Internal server error
+          description: 5xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
       security:
@@ -405,7 +396,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a specific poll by its ID. Requires authentication.
+      description: Retrieve a specific poll by its ID.
       parameters:
       - description: Poll ID
         in: path
@@ -420,19 +411,11 @@ paths:
           schema:
             $ref: '#/definitions/results.GetPollResult'
         "400":
-          description: Bad Request - Invalid input
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "401":
-          description: Unauthorized - Invalid or missing token
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "404":
-          description: Poll not found
+          description: 4xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
         "500":
-          description: Internal server error
+          description: 5xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
       security:
@@ -465,15 +448,11 @@ paths:
           schema:
             type: boolean
         "400":
-          description: Bad Request - Invalid input
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "401":
-          description: Unauthorized - Invalid or missing authentication
+          description: 4xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
         "500":
-          description: Internal Server Error
+          description: 5xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
       security:
@@ -485,8 +464,8 @@ paths:
     patch:
       consumes:
       - application/json
-      description: End a poll by providing the poll ID in the route. The user must
-        be authenticated.
+      description: Mark the poll ended by providing the poll ID in the route. In order
+        to end a poll, you need to be the poll owner.
       parameters:
       - description: Poll ID
         in: path
@@ -501,19 +480,11 @@ paths:
           schema:
             type: boolean
         "400":
-          description: Bad Request - Invalid input
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "401":
-          description: Unauthorized - Invalid or missing token
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "404":
-          description: Poll not found
+          description: 4xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
         "500":
-          description: Internal server error
+          description: 5xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
       security:
@@ -525,8 +496,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Add a vote to a specific poll category by providing the poll ID
-        in the route and the category ID in the request body. The user must be authenticated.
+      description: Cast a vote to a specific poll category by providing the poll ID
+        in the route and the category ID in the request body.
       parameters:
       - description: Poll ID
         in: path
@@ -543,23 +514,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: Vote added successfully
+          description: Vote cast successful
           schema:
             type: boolean
         "400":
-          description: Bad Request - Invalid input
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "401":
-          description: Unauthorized - Invalid or missing token
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "404":
-          description: Poll or category not found
+          description: 4xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
         "500":
-          description: Internal server error
+          description: 5xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
       security:
@@ -571,7 +534,10 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieves polls for the given user ID. Requires authentication.
+      description: Retrieves polls created by a specific user, with pagination and
+        optional filter. The filter parameter is used to search for polls by title
+        or description. The show_active_only parameter is used to show only active
+        polls.
       parameters:
       - description: User ID
         in: path
@@ -602,19 +568,11 @@ paths:
           schema:
             $ref: '#/definitions/utility.PaginatedResponse-results_GetPollResult'
         "400":
-          description: Bad Request - Invalid user ID
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "401":
-          description: Unauthorized - Invalid or missing token
-          schema:
-            $ref: '#/definitions/utility.ErrorCode'
-        "404":
-          description: User not found
+          description: 4xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
         "500":
-          description: Internal server error
+          description: 5xx Errors
           schema:
             $ref: '#/definitions/utility.ErrorCode'
       security:

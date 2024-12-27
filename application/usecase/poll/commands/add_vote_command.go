@@ -26,10 +26,12 @@ func NewAddVoteCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validat
 
 func (r AddVoteCommand) AddVote(request *requests.AddVoteRequest, user *entities.User) (bool, *utility.ErrorCode) {
 
+	// validate request
 	if err := r.Validator.Struct(request); err != nil {
 		return false, utility.ValidationError.WithDescription(err.Error())
 	}
 
+	// begin transaction
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
 		return false, utility.InternalServerError.WithDescription(err.Error())
@@ -89,8 +91,9 @@ func (r AddVoteCommand) AddVote(request *requests.AddVoteRequest, user *entities
 		return false, utility.InternalServerError.WithDescription(err.Error())
 	}
 
+	// broadcast
 	var broadcastData results.BroadcastVote
-	broadcastData.BroadcastType = "update-poll"
+	broadcastData.BroadcastType = "vote-cast"
 	broadcastData.Data.PollID = updatedPoll.ID
 	for _, category := range updatedPoll.Categories {
 		broadcastData.Data.Categories = append(broadcastData.Data.Categories, struct {
@@ -105,14 +108,15 @@ func (r AddVoteCommand) AddVote(request *requests.AddVoteRequest, user *entities
 	message, _ := json.Marshal(broadcastData)
 	websocket.BroadcastMessage(string(message))
 
+	// send email
 	go func() {
 		if err := mail.SendEmail(
 			user.Email,
 			"Vote Casted",
-			"../../../infrastructure/mail/templates/vote_template.html",
+			mail.GetTemplatePath("vote_template.html"),
 			map[string]string{
 				"PollTitle":    updatedPoll.Title,
-				"CategoryName": updatedPoll.Categories[request.PollCategoryID].Name,
+				"CategoryName": updatedPoll.Categories[request.PollCategoryID-1].Name,
 			},
 		); err != nil {
 			log.Printf("Failed to send email. %v", err)
