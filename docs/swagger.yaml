@@ -165,8 +165,8 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: Your API description
-  title: Your API Title
+  description: Polling System API's
+  title: Polling System API's
   version: "1.0"
 paths:
   /auth/login:

@@ -14,9 +14,9 @@ type Database struct {
 
 func NewDatabase() (*Database, *utility.ErrorCode) {
 
-	dsn := os.Getenv("CONNECTION_STRING")
+	connection := os.Getenv("CONNECTION_STRING")
 
-	context, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	context, err := gorm.Open(postgres.Open(connection), &gorm.Config{})
 
 	if err != nil || context == nil {
 		return nil, utility.DatabaseConnectionError.WithDescription(err.Error())

@@ -7,7 +7,7 @@ import (
 )
 
 type UnitOfWork struct {
-	db *gorm.DB
+	Database *gorm.DB
 
 	UserRepository         contracts.IUserRepository
 	RefreshTokenRepository contracts.IRefreshTokenRepository
@@ -16,62 +16,62 @@ type UnitOfWork struct {
 	PollCategoryRepository contracts.IPollCategoryRepository
 }
 
-func NewUnitOfWork(db *gorm.DB) contracts.IUnitOfWork {
-	return &UnitOfWork{db: db}
+func NewUnitOfWork(database *gorm.DB) contracts.IUnitOfWork {
+	return &UnitOfWork{Database: database}
 }
 
-func (u *UnitOfWork) Begin() (contracts.IUnitOfWork, error) {
-	tx := u.db.Begin()
+func (unitOfWork *UnitOfWork) Begin() (contracts.IUnitOfWork, error) {
+	tx := unitOfWork.Database.Begin()
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 
-	return &UnitOfWork{db: tx}, nil
+	return &UnitOfWork{Database: tx}, nil
 }
 
-func (u *UnitOfWork) Commit() error {
-	return u.db.Commit().Error
+func (unitOfWork *UnitOfWork) Commit() error {
+	return unitOfWork.Database.Commit().Error
 }
 
-func (u *UnitOfWork) Rollback() error {
-	return u.db.Rollback().Error
+func (unitOfWork *UnitOfWork) Rollback() error {
+	return unitOfWork.Database.Rollback().Error
 }
 
-func (u *UnitOfWork) DB() *gorm.DB {
-	return u.db
+func (unitOfWork *UnitOfWork) DB() *gorm.DB {
+	return unitOfWork.Database
 }
 
-func (u *UnitOfWork) IUserRepository() contracts.IUserRepository {
-	if u.UserRepository == nil {
-		u.UserRepository = NewUserRepository(u.db)
+func (unitOfWork *UnitOfWork) IUserRepository() contracts.IUserRepository {
+	if unitOfWork.UserRepository == nil {
+		unitOfWork.UserRepository = NewUserRepository(unitOfWork.Database)
 	}
-	return u.UserRepository
+	return unitOfWork.UserRepository
 }
 
-func (u *UnitOfWork) IRefreshTokenRepository() contracts.IRefreshTokenRepository {
-	if u.RefreshTokenRepository == nil {
-		u.RefreshTokenRepository = NewRefreshTokenRepository(u.db)
+func (unitOfWork *UnitOfWork) IRefreshTokenRepository() contracts.IRefreshTokenRepository {
+	if unitOfWork.RefreshTokenRepository == nil {
+		unitOfWork.RefreshTokenRepository = NewRefreshTokenRepository(unitOfWork.Database)
 	}
-	return u.RefreshTokenRepository
+	return unitOfWork.RefreshTokenRepository
 }
 
-func (u *UnitOfWork) IVoteRepository() contracts.IVoteRepository {
-	if u.VoteRepository == nil {
-		u.VoteRepository = NewVoteRepository(u.db)
+func (unitOfWork *UnitOfWork) IVoteRepository() contracts.IVoteRepository {
+	if unitOfWork.VoteRepository == nil {
+		unitOfWork.VoteRepository = NewVoteRepository(unitOfWork.Database)
 	}
-	return u.VoteRepository
+	return unitOfWork.VoteRepository
 }
 
-func (u *UnitOfWork) IPollRepository() contracts.IPollRepository {
-	if u.PollRepository == nil {
-		u.PollRepository = NewPollRepository(u.db)
+func (unitOfWork *UnitOfWork) IPollRepository() contracts.IPollRepository {
+	if unitOfWork.PollRepository == nil {
+		unitOfWork.PollRepository = NewPollRepository(unitOfWork.Database)
 	}
-	return u.PollRepository
+	return unitOfWork.PollRepository
 }
 
-func (u *UnitOfWork) IPollCategoryRepository() contracts.IPollCategoryRepository {
-	if u.PollCategoryRepository == nil {
-		u.PollCategoryRepository = NewPollCategoryRepository(u.db)
+func (unitOfWork *UnitOfWork) IPollCategoryRepository() contracts.IPollCategoryRepository {
+	if unitOfWork.PollCategoryRepository == nil {
+		unitOfWork.PollCategoryRepository = NewPollCategoryRepository(unitOfWork.Database)
 	}
-	return u.PollCategoryRepository
+	return unitOfWork.PollCategoryRepository
 }

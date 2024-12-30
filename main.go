@@ -18,9 +18,9 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title Your API Title
+// @title Polling System API's
 // @version 1.0
-// @description Your API description
+// @description Polling System API's
 // @host localhost:8080
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
@@ -56,7 +56,7 @@ func main() {
 	// broadcaster in a goroutine
 	go websocket.HandleBroadcast()
 
-	// routine for poll expiration
+	// goroutine for poll expiration
 	go func() {
 		// every 1 minute - check for expiries
 		ticker := time.NewTicker(1 * time.Minute)

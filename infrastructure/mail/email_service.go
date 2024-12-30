@@ -26,9 +26,9 @@ func SendEmail(to, subject, templatePath string, templateData interface{}) error
 	mail.SetHeader("Subject", subject)
 	mail.SetBody("text/html", body)
 
-	d := gomail.NewDialer(emailConfig.SMTPHost, emailConfig.SMTPPort, emailConfig.SenderEmail, emailConfig.SenderPass)
+	dialer := gomail.NewDialer(emailConfig.SMTPHost, emailConfig.SMTPPort, emailConfig.SenderEmail, emailConfig.SenderPass)
 
-	if err := d.DialAndSend(mail); err != nil {
+	if err := dialer.DialAndSend(mail); err != nil {
 		return err
 	}
 

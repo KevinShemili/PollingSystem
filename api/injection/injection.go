@@ -29,6 +29,7 @@ func BuildContainer() *AppContainer {
 	// unit of work - repositories inside
 	UnitOfWork := repository.NewUnitOfWork(dbContext)
 
+	// validator library
 	validate := validator.New()
 
 	// handlers

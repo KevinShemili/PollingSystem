@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Your API description",
-        "title": "Your API Title",
+        "description": "Polling System API's",
+        "title": "Polling System API's",
         "contact": {},
         "version": "1.0"
     },
