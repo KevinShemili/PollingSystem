@@ -145,7 +145,11 @@ func (uc *AuthenticationController) LogOut(c *gin.Context) {
 		return
 	}
 
+	// delete user from context
 	c.Set("user", nil)
+
+	// remove auth header
+	c.Request.Header.Del("Authorization")
 
 	c.JSON(http.StatusOK, result)
 }

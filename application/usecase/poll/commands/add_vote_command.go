@@ -116,7 +116,7 @@ func (r AddVoteCommand) AddVote(request *requests.AddVoteRequest, user *entities
 			mail.GetTemplatePath("vote_template.html"),
 			map[string]string{
 				"PollTitle":    updatedPoll.Title,
-				"CategoryName": updatedPoll.Categories[request.PollCategoryID-1].Name,
+				"CategoryName": getCategory(&updatedPoll.Categories, request.PollCategoryID),
 			},
 		); err != nil {
 			log.Printf("Failed to send email. %v", err)
@@ -125,4 +125,13 @@ func (r AddVoteCommand) AddVote(request *requests.AddVoteRequest, user *entities
 	}()
 
 	return true, nil
+}
+
+func getCategory(pollCategories *[]entities.PollCategory, requestID uint) string {
+	for _, category := range *pollCategories {
+		if category.ID == requestID {
+			return category.Name
+		}
+	}
+	return ""
 }
