@@ -8,5 +8,6 @@ import (
 )
 
 type ICreatePollCommand interface {
+	// CreatePoll is a method to create a new poll
 	CreatePoll(request *requests.CreatePollRequest, user *entities.User) (*results.CreatePollResult, *utility.ErrorCode)
 }

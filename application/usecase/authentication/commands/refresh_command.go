@@ -26,10 +26,12 @@ func NewRefreshCommand(UnitOfWork repo.IUnitOfWork, Validator *validator.Validat
 
 func (r RefreshCommand) Refresh(request *requests.TokensRequest) (*results.RefreshResult, *utility.ErrorCode) {
 
+	// validate request
 	if err := r.Validator.Struct(request); err != nil {
 		return nil, utility.ValidationError.WithDescription(err.Error())
 	}
 
+	// begin transaction
 	uof, err := r.UnitOfWork.Begin()
 	if err != nil {
 		return nil, utility.InternalServerError.WithDescription(err.Error())

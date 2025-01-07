@@ -1,3 +1,6 @@
+// request structs for poll related requests
+// validator is used to validate the request fields
+
 package requests
 
 import "gin/application/utility"

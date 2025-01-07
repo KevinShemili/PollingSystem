@@ -1,3 +1,5 @@
+// results produced by the authentication use cases
+
 package results
 
 type LoginResult struct {

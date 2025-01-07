@@ -21,7 +21,10 @@ func NewVoteRepository(db *gorm.DB) contracts.IVoteRepository {
 func (r *VoteRepository) HasAlreadyVoted(PollID uint, UserID uint) (bool, error) {
 	var existingVote entities.Vote
 
-	err := r.db.Model(&entities.Vote{}).
+	// Join the Votes table with the PollCategories table to
+	// lookup by pollID and userID. If no record is found, hasn't voted.
+	err := r.db.
+		Model(&entities.Vote{}).
 		Joins("JOIN poll_categories ON poll_categories.id = votes.poll_category_id").
 		Where("poll_categories.poll_id = ? AND votes.user_id = ?", PollID, UserID).
 		First(&existingVote).Error

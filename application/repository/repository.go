@@ -56,7 +56,10 @@ func (r *Repository[T]) Update(entity *T) error {
 
 func (r *Repository[T]) SoftDelete(id uint) error {
 
+	// take it for granted there is no error
+	// logic checks are done in upper layers
 	entity, _ := r.GetByID(id)
+
 	result := r.db.Delete(entity)
 
 	if result.Error != nil {
@@ -68,8 +71,13 @@ func (r *Repository[T]) SoftDelete(id uint) error {
 
 func (r *Repository[T]) HardDelete(id uint) error {
 
+	// take it for granted there is no error
+	// logic checks are done in upper layers
 	entity, _ := r.GetByID(id)
-	result := r.db.Unscoped().Delete(entity)
+
+	result := r.db.
+		Unscoped().
+		Delete(entity)
 
 	if result.Error != nil {
 		return result.Error

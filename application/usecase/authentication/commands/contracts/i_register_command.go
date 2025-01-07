@@ -6,5 +6,6 @@ import (
 )
 
 type IRegisterCommand interface {
+	// Register is a method to register a user
 	Register(request *requests.RegisterRequest) (bool, *utility.ErrorCode)
 }

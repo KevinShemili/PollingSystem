@@ -89,6 +89,6 @@ func (r LoginCommand) Login(request *requests.LoginRequest) (*results.LoginResul
 
 	return &results.LoginResult{
 		JWTToken:     signedToken,
-		RefreshToken: utility.Encode(refreshToken),
+		RefreshToken: utility.Encode(refreshToken), // encode for security
 	}, nil
 }

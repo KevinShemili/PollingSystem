@@ -23,7 +23,9 @@ func NewPollRepository(db *gorm.DB) contracts.IPollRepository {
 func (r *PollRepository) GetPollWithVotes(pollID uint) (*entities.Poll, error) {
 
 	var poll entities.Poll
-	err := r.db.Preload("Categories.Votes").First(&poll, pollID).Error
+	err := r.db.
+		Preload("Categories.Votes").
+		First(&poll, pollID).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -38,7 +40,9 @@ func (r *PollRepository) GetPollWithVotes(pollID uint) (*entities.Poll, error) {
 func (r *PollRepository) GetPollWithCategories(pollID uint) (*entities.Poll, error) {
 
 	var poll entities.Poll
-	err := r.db.Preload("Categories").First(&poll, pollID).Error
+	err := r.db.
+		Preload("Categories").
+		First(&poll, pollID).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -71,7 +75,8 @@ func (r *PollRepository) GetExpiredPolls(currentTime time.Time) ([]*entities.Pol
 
 func (r *PollRepository) GetPollsPaginated(parameters utility.QueryParams, showActiveOnly bool) (utility.PaginatedResponse[entities.Poll], error) {
 
-	db := r.db.Model(&entities.Poll{}).
+	db := r.db.
+		Model(&entities.Poll{}).
 		Preload("Categories.Votes")
 
 	if showActiveOnly {
@@ -83,7 +88,8 @@ func (r *PollRepository) GetPollsPaginated(parameters utility.QueryParams, showA
 
 func (r *PollRepository) GetPollsByUserPaginated(userID uint, parameters utility.QueryParams, showActiveOnly bool) (utility.PaginatedResponse[entities.Poll], error) {
 
-	db := r.db.Model(&entities.Poll{}).
+	db := r.db.
+		Model(&entities.Poll{}).
 		Preload("Categories.Votes")
 
 	if showActiveOnly {

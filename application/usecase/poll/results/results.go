@@ -1,3 +1,5 @@
+// results produced by the poll use cases
+
 package results
 
 import "time"

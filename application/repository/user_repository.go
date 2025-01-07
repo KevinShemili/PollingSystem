@@ -22,7 +22,9 @@ func (r *UserRepository) GetByEmail(email string) (*entities.User, error) {
 
 	var user entities.User
 
-	result := r.db.Where("email = ?", email).First(&user)
+	result := r.db.
+		Where("email = ?", email).
+		First(&user)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

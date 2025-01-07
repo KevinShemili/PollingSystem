@@ -6,5 +6,6 @@ import (
 )
 
 type IDeletePollCommand interface {
+	// DeletePoll is a method to soft delete a poll
 	DeletePoll(pollID uint, user *entities.User) (bool, *utility.ErrorCode)
 }

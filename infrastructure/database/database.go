@@ -11,6 +11,7 @@ type Database struct {
 	DBContext *gorm.DB
 }
 
+// NewDatabase establishes a database connection
 func NewDatabase() (*Database, error) {
 
 	connection := os.Getenv("CONNECTION_STRING")
@@ -24,6 +25,7 @@ func NewDatabase() (*Database, error) {
 	return &Database{DBContext: context}, nil
 }
 
+// GetDBContext returns the current database context.
 func (database *Database) GetDBContext() *gorm.DB {
 	return database.DBContext
 }

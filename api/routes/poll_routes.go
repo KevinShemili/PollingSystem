@@ -1,3 +1,8 @@
+/*
+Poll Routes
+Auth Middleware used to protect some resources
+*/
+
 package routes
 
 import (

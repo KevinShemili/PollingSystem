@@ -1,3 +1,16 @@
+/*
+File handles database migration and seeding for the application
+1. Load env variables
+2. Ensure database exists
+3. Establish a db connection
+4. Run database migrations for entities
+5. Seed the database with some initial data
+
+RUN:
+	cd migration
+	go run migrate.go
+*/
+
 package main
 
 import (
@@ -17,6 +30,7 @@ func main() {
 
 	loadEnvironmentVariables()
 
+	// create database if it doesnt exist
 	ensureDatabaseExists()
 
 	database, err := database.NewDatabase()
@@ -24,8 +38,10 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	// get context instance
 	dbContext := database.GetDBContext()
 
+	// migrate to db
 	err = dbContext.AutoMigrate(
 		&entities.User{},
 		&entities.RefreshToken{},
@@ -39,6 +55,7 @@ func main() {
 
 	log.Println("Migration Complete.")
 
+	// add some seed data for our applications purpose
 	seedData(dbContext)
 }
 

@@ -6,5 +6,6 @@ import (
 )
 
 type IGetPollQuery interface {
+	// GetPoll returns a poll by its ID
 	GetPoll(pollID uint) (*results.GetPollResult, *utility.ErrorCode)
 }

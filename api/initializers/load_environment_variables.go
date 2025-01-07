@@ -1,3 +1,5 @@
+// helper function to load environment variables from .env file
+
 package initializers
 
 import (

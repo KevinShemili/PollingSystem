@@ -1,3 +1,13 @@
+/*
+Dependency Injection Container for the application:
+1. Database setup
+2. Unit of Work pattern with repositories
+3. Validator configuration
+4. Command/Query handlers with dependencies
+5. Controllers initialization
+6. Populate container
+*/
+
 package injection
 
 import (

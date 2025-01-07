@@ -29,7 +29,7 @@ func NewAuthenticationController(RegisterCommand contracts.IRegisterCommand,
 
 // Register godoc
 // @Summary Register a new user
-// @Description Register a new user
+// @Description Register a new user. Email must be a valid email of format abcd@mail.com. Password must be 8+ characters long, and must have at least 1 Uppercase & 1 Lowercase characters & 1 Number.
 // @Tags Authentication
 // @Accept json
 // @Produce json

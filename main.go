@@ -28,14 +28,18 @@ import (
 // @name Authorization
 func main() {
 
+	// load environment variables so they are available throughout our application
 	initializers.LoadEnvironmentVariabes()
 
+	// build the dependency container
 	container := injection.BuildContainer()
 
 	r := gin.Default()
 
+	// declare swagger endpoint
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	// declare auth & poll routes
 	routes.AuthenticationRoutes(r, container.AuthenticationController, container.UnitOfWork)
 	routes.PollRoutes(r, container.PollController, container.UnitOfWork)
 

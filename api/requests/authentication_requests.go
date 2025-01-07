@@ -1,3 +1,6 @@
+// request structs for authentication endpoints
+// validator is used to validate the request fields
+
 package requests
 
 type RegisterRequest struct {

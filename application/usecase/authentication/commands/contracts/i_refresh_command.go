@@ -7,5 +7,6 @@ import (
 )
 
 type IRefreshCommand interface {
+	// Refresh is a method to generate new JWT & refresh token
 	Refresh(request *requests.TokensRequest) (*results.RefreshResult, *utility.ErrorCode)
 }

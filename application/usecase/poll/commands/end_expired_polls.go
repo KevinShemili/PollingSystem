@@ -1,3 +1,16 @@
+/*
+Used for automatically ending expired polls.
+It is called every 1 minute by a goroutine in main.go.
+
+- Retrieve expired polls from the database
+- If no polls are expired polls found, return
+- Begin a new transaction.
+- Update each poll and mark them as ended
+- Commit the transaction
+- Broadcast each poll expiry
+- Send an email to each of the poll creators with the poll results
+*/
+
 package commands
 
 import (

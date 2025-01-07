@@ -1,3 +1,14 @@
+/*
+Structs containing the structure of the broadcast messages sent to the clients
+Broadcasts happen when:
+- Poll is created
+- A vote is cast
+- A poll expires
+- A poll is deleted
+- A poll is updated - uses same structure as poll creation
+
+*/
+
 package results
 
 import "time"

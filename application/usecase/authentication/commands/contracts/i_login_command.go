@@ -7,5 +7,6 @@ import (
 )
 
 type ILoginCommand interface {
+	// Login is a method to authenticate user
 	Login(request *requests.LoginRequest) (*results.LoginResult, *utility.ErrorCode)
 }

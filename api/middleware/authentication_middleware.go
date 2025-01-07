@@ -1,3 +1,12 @@
+/*
+Authentication Middleware:
+- Validate JWT token in Authorization header
+- Verify token signature
+- Check token expiration
+- Extracts user ID from claims & verify it exists
+- Add user to gin context
+*/
+
 package middleware
 
 import (

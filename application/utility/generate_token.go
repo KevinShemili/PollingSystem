@@ -10,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+// GenerateRefreshToken generates a random refresh token
 func GenerateRefreshToken() (string, time.Time, error) {
 
 	token := make([]byte, 16)
@@ -34,6 +35,7 @@ func GenerateRefreshToken() (string, time.Time, error) {
 	return refreshToken, expirationTime, nil
 }
 
+// GenerateJWTWithID generates a JWT token for a given user ID
 func GenerateJWTWithID(UserID uint) (string, error) {
 
 	jwtExpiryHour, _ := strconv.Atoi(os.Getenv("EXPIRY_JWT"))
@@ -52,6 +54,7 @@ func GenerateJWTWithID(UserID uint) (string, error) {
 	return signedToken, nil
 }
 
+// GenerateJWTWithClaims generates a JWT token with given claims
 func GenerateJWTWithClaims(claims jwt.MapClaims) (string, error) {
 
 	jwtExpiryHour, _ := strconv.Atoi(os.Getenv("EXPIRY_JWT"))

@@ -160,7 +160,7 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
-                "description": "Register a new user",
+                "description": "Register a new user. Email must be a valid email of format abcd@mail.com. Password must be 8+ characters long, and must have at least 1 Uppercase \u0026 1 Lowercase characters \u0026 1 Number.",
                 "consumes": [
                     "application/json"
                 ],

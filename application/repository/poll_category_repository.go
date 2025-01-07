@@ -21,7 +21,8 @@ func NewPollCategoryRepository(db *gorm.DB) contracts.IPollCategoryRepository {
 func (r *PollCategoryRepository) HasCategory(PollID uint, PollCategoryID uint) (bool, error) {
 
 	var category entities.PollCategory
-	err := r.db.Model(&entities.PollCategory{}).
+	err := r.db.
+		Model(&entities.PollCategory{}).
 		Where("poll_id = ? AND id = ?", PollID, PollCategoryID).
 		First(&category).Error
 

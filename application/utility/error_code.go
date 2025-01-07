@@ -1,3 +1,15 @@
+/*
+Custom Error Implementation:
+- Consistent error format across API
+- Separates technical details from user messages
+- Reusable error definitions
+
+Client receives:
+- Message: Client friendly error message
+- StatusCode: HTTP status code
+- Description: Optional detailed error info
+*/
+
 package utility
 
 import "net/http"
@@ -8,6 +20,7 @@ type ErrorCode struct {
 	Description string `json:"description"`
 }
 
+// NewFullErrorCode creates a new ErrorCode with a message, status code, and description
 func NewFullErrorCode(message string, statusCode int, description string) *ErrorCode {
 	return &ErrorCode{
 		Message:     message,
@@ -16,6 +29,7 @@ func NewFullErrorCode(message string, statusCode int, description string) *Error
 	}
 }
 
+// NewErrorCode creates a new ErrorCode with a message and status code
 func NewErrorCode(message string, statusCode int) *ErrorCode {
 	return &ErrorCode{
 		Message:    message,
@@ -23,6 +37,7 @@ func NewErrorCode(message string, statusCode int) *ErrorCode {
 	}
 }
 
+// WithDescription adds a description to an ErrorCode
 func (e *ErrorCode) WithDescription(description string) *ErrorCode {
 	return &ErrorCode{
 		Message:     e.Message,
